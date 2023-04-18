@@ -1,27 +1,21 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-import { DataSource } from 'typeorm';
-import { LoggerMiddleware } from '../common/logger/logger.middleware';
+import { LoggerMiddleware } from './common/logger/logger.middleware';
 import { UsersModule } from './users/users.module';
-import { User } from './users/users.entity';
+import { MongooseModule } from '@nestjs/mongoose';
+import * as Mongoose from 'mongoose';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: process.env.DATABASE_USER,
-      password: process.env.DATABASE_PASSWORD,
-      database: process.env.DATABASE_NAME,
-      entities: [User],
-      synchronize: true,
+    MongooseModule.forRoot(process.env.MONGODB_URI, {
+      //디비 연결하기 및 설정하기
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
     }),
     UsersModule,
   ],
@@ -29,8 +23,10 @@ import { User } from './users/users.entity';
   providers: [AppService],
 })
 export class AppModule implements NestModule {
+  private readonly isDev: boolean = process.env.MODE === 'dev' ? true : false;
+
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(LoggerMiddleware).forRoutes('*');
+    Mongoose.set('debug', this.isDev);
   }
-  constructor(private dataSource: DataSource) {}
 }
