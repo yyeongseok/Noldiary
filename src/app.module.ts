@@ -5,7 +5,9 @@ import { ConfigModule } from '@nestjs/config';
 import { LoggerMiddleware } from './common/logger/logger.middleware';
 import { UsersModule } from './users/users.module';
 import { MongooseModule } from '@nestjs/mongoose';
+import { AuthModule } from './auth/auth.module';
 import * as Mongoose from 'mongoose';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -17,7 +19,12 @@ import * as Mongoose from 'mongoose';
       useNewUrlParser: true,
       useUnifiedTopology: true,
     }),
+    HttpModule.register({
+      timeout: 5000,
+      maxRedirects: 5,
+    }),
     UsersModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
