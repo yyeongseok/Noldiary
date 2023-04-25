@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 @Injectable()
-export class LoggingInterceptor implements NestInterceptor {
+export class successInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     console.log('Before...');
 
