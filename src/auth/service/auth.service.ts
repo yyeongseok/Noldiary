@@ -1,7 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import axios from 'axios';
-import qs from 'qs';
 import { UsersRepository } from 'src/users/users.repository';
 
 @Injectable()
@@ -10,92 +9,111 @@ export class AuthService {
     private readonly usersRepository: UsersRepository,
     private jwtService: JwtService,
   ) {}
-
-  async OAuthLogin(options: { code: string; domain: string }): Promise<any> {
-    const { code, domain } = options;
-    const kakaoKey = process.env.KAKAO_CLIENT_ID;
-    const kakaoTokenUrl = 'https://kauth.kakao.com/oauth/token';
+  async kakaoLogin(accesstoken: string) {
     const kakaoUserInfoUrl = 'https://kapi.kakao.com/v2/user/me';
-    console.log(kakaoTokenUrl);
-    const body = {
-      grant_type: 'authorization_code',
-      client_id: kakaoKey,
-      redirect_uri: `${domain}/kakao-callback`,
-      code,
-    };
-
-    const headers = {
+    const headerUserInfo = {
+      Authorization: `Bearer ${accesstoken}`,
       'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
     };
 
-    try {
-      const response = await axios({
-        method: 'POST',
-        url: kakaoTokenUrl,
-        timeout: 30000,
-        headers,
-        data: qs.stringify(body),
-      });
+    const responseUserInfo = await axios({
+      method: 'GET',
+      url: kakaoUserInfoUrl,
+      headers: headerUserInfo,
+    });
 
-      if (response.status === 200) {
-        console.log(`kakaoToken : ${JSON.stringify(response.data)}`);
+    if (responseUserInfo.status === 200) {
+      const email = responseUserInfo.data.kakao_account.email;
+      const nickname = responseUserInfo.data.properties.nickname;
+      const profileImage = responseUserInfo.data.properties.profile_image;
+      const socialId = responseUserInfo.data.id;
+      const socialOption = 'kakao';
+      const kakaoUser = {
+        email,
+        nickname,
+        profileImage,
+        socialId,
+        socialOption,
+      };
+      let token = '';
+      const payload = { email: email, sub: socialId };
 
-        // Token 을 가져왔을 경우 사용자 정보 조회
-        const headerUserInfo = {
-          'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
-          Authorization: 'Bearer ' + response.data.access_token,
-        };
-        console.log(`url : ${kakaoTokenUrl}`);
-        console.log(`headers : ${JSON.stringify(headerUserInfo)}`);
-
-        const responseUserInfo = await axios({
-          method: 'GET',
-          url: kakaoUserInfoUrl,
-          timeout: 30000,
-          headers: headerUserInfo,
-        });
-
-        console.log(`responseUserInfo.status : ${responseUserInfo.status}`);
-
-        if (responseUserInfo.status === 200) {
-          console.log(
-            `kakaoUserInfo : ${JSON.stringify(responseUserInfo.data)}`,
-          );
-          //const { result } = responseUserInfo;
-          const email = responseUserInfo.data.email;
-          const nickname = responseUserInfo.data.properties.nickname;
-          const profileImage = responseUserInfo.data.properties.profile_image;
-          const socialId = responseUserInfo.data.id;
-          const socialOption = 'kakao';
-          const kakaoUser = {
-            email,
-            nickname,
-            profileImage,
-            socialId,
-            socialOption,
-          };
-          const payload = { email: email, sub: socialId };
-
-          const user = await this.usersRepository.existsByEmail(email);
-          if (!user) {
-            await this.usersRepository.create(kakaoUser);
-          } else {
-            const info = await this.usersRepository.findUserByEmail(email);
-            const jwtPayload = { email: info.email, sub: info.socialId };
-            this.jwtService.sign(jwtPayload);
-          }
-          return {
-            token: this.jwtService.sign(payload),
-          };
-        } else {
-          throw new UnauthorizedException();
-        }
+      const user = await this.usersRepository.existsByEmail(email);
+      if (!user) {
+        await this.usersRepository.create(kakaoUser);
+        token = this.jwtService.sign(payload);
       } else {
-        throw new UnauthorizedException();
+        const info = await this.usersRepository.findUserByEmail(email);
+        const jwtPayload = {
+          email: info.email,
+          sub: info.socialId,
+          userId: info.id,
+        };
+        token = this.jwtService.sign(jwtPayload);
+      }
+      return token;
+    }
+  }
+
+  async naverLogin(code: string, state: string): Promise<any> {
+    const naverTokenUrl = 'https://nid.naver.com/oauth2.0/token';
+    const naverClientKey = process.env.NAVER_CLIENT_ID;
+    const naverSecretKey = process.env.NAVER_CLIENT_SECRET;
+    const naverUserInfoUrl = 'https://openapi.naver.com/v1/nid/me';
+
+    try {
+      const naverAccessToken = await axios.get(naverTokenUrl, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        params: {
+          grant_type: 'authorization_code',
+          client_id: naverClientKey,
+          client_secret: naverSecretKey,
+          code: code,
+          state: state,
+        },
+      });
+      console.log('accessToken', naverAccessToken.data.access_token);
+      if (naverAccessToken.status === 200) {
+        const getNaverUserInfo = await axios.get(naverUserInfoUrl, {
+          headers: {
+            Authorization: `Bearer ${naverAccessToken.data.access_token}`,
+          },
+        });
+        const email = getNaverUserInfo.data.response.email;
+        const nickname = getNaverUserInfo.data.response.name;
+        const profileImage = getNaverUserInfo.data.response.profile_image;
+        const socialId = getNaverUserInfo.data.response.id;
+        const socialOption = 'NAVER';
+        const naverUser = {
+          email,
+          nickname,
+          profileImage,
+          socialId,
+          socialOption,
+        };
+        let token = '';
+        const payload = { email: email, socialId: socialId };
+
+        const user = await this.usersRepository.existsByEmail(email);
+        if (!user) {
+          await this.usersRepository.create(naverUser);
+          token = this.jwtService.sign(payload);
+        } else {
+          const info = await this.usersRepository.findUserByEmail(email);
+          const jwtPayload = {
+            email: info.email,
+            sub: info.socialId,
+            userId: info.id,
+          };
+          token = this.jwtService.sign(jwtPayload);
+        }
+        return token;
       }
     } catch (error) {
       console.log(error);
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('네이버 로그인 실패');
     }
   }
 }
