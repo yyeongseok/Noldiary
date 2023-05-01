@@ -9,7 +9,7 @@ export class jwtStrategy extends PassportStrategy(Strategy) {
   constructor(private readonly usersRepository: UsersRepository) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: process.env.KEY,
+      secretOrKey: process.env.JWT_SECRET,
       ignoreExpiration: false,
     });
   }
@@ -22,7 +22,7 @@ export class jwtStrategy extends PassportStrategy(Strategy) {
     if (user) {
       return user; //request.user
     } else {
-      throw new UnauthorizedException('인증 오류');
+      throw new UnauthorizedException('접근 오류');
     }
   }
 }

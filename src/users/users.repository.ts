@@ -28,8 +28,8 @@ export class UsersRepository {
     return user;
   }
 
-  async findUserBySocialId(socialId: number): Promise<Users | null> {
-    const user = await this.UserModel.findOne({ socialId });
+  async findUserBySocialId(socialId: string): Promise<Users | null> {
+    const user = await this.UserModel.findOne({ socialId }).select('-socialId');
     return user;
   }
 }

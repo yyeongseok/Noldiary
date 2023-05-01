@@ -1,14 +1,13 @@
 import {
   BadRequestException,
-  Body,
   Controller,
   Post,
+  Request,
   Response,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
 import { AuthService } from '../service/auth.service';
-//import { JwtKakaoStrategy } from '../jwt/jwt.kakao.strategy';
 
 @Controller('auth')
 export class AuthController {
@@ -19,33 +18,43 @@ export class AuthController {
 
   @ApiOperation({ summary: '카카오 로그인' })
   @Post('/login/kakao')
-  async kakaologin(@Body() body: any, @Response() res): Promise<any> {
+  async kakaotoken(@Request() req, @Response() res): Promise<any> {
     try {
-      const { code, domain } = body;
-      if (!code || !domain) {
-        throw new BadRequestException('카카오 정보가 (코드,도메인)없습니다.');
+      const accesstoken = req.headers.authorization;
+      console.log(accesstoken);
+      if (!accesstoken) {
+        throw new BadRequestException('카카오 정보가 없습니다.');
       }
-      const kakao = await this.authService.OAuthLogin({ code, domain });
+      const kakaoAccessToken = await this.authService.kakaoLogin(accesstoken);
 
-      console.log(`kakaoUserInfo : ${JSON.stringify(kakao)}`);
+      console.log(`kakaoUserInfo: ${JSON.stringify(kakaoAccessToken)}`);
 
-      if (!kakao.id) {
-        throw new BadRequestException('카카오 아이디가 없습니다.');
-      }
-
-      res.send({
-        user: kakao,
-        message: 'success',
-      });
-    } catch (e) {
-      console.log(e);
-      throw new UnauthorizedException('카카오 정보가 없습니다.');
+      res.status(201).json({ accessToken: kakaoAccessToken });
+    } catch (error) {
+      throw new UnauthorizedException('카카오 로그인 실패하였습니다');
     }
   }
 
   @ApiOperation({ summary: '네이버 로그인' })
   @Post('/login/naver')
-  async naverLogin() {
-    return this.naverLogin;
+  async naverLogin(@Request() req, @Response() res): Promise<any> {
+    try {
+      const code: string = req.query.code;
+      const state: string = req.query.state;
+      console.log(code);
+      console.log(state);
+      if (!code || !state) {
+        throw new BadRequestException('네이버 정보가 없습니다.');
+      }
+
+      const naverAccessToken = await this.authService.naverLogin(code, state);
+
+      console.log(`naverUserInfo: ${JSON.stringify(naverAccessToken)}`);
+
+      res.status(201).json({ accessToken: naverAccessToken });
+    } catch (e) {
+      console.log(e);
+      throw new UnauthorizedException('네이버 로그인 실패하였습니다.');
+    }
   }
 }

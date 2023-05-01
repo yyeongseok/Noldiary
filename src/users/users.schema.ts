@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory, SchemaOptions } from '@nestjs/mongoose';
-//import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 import { Document } from 'mongoose';
 
 const options: SchemaOptions = {
@@ -36,9 +35,8 @@ export class Users extends Document {
     required: true,
     unique: true,
   })
-  @IsNumber()
   @IsNotEmpty()
-  socialId: number;
+  socialId: string;
 
   @Prop({
     required: true,
@@ -52,6 +50,7 @@ export class Users extends Document {
     nickname: string;
     email: string;
     profileImage: string;
+    socialOption: string;
   };
 }
 
@@ -63,5 +62,6 @@ userSchema.virtual('readOnlyData').get(function (this: Users) {
     nickname: this.nickname,
     email: this.email,
     profileImage: this.profileImage,
+    socialOption: this.socialOption,
   };
 });
