@@ -36,7 +36,7 @@ export class AuthService {
         socialOption,
       };
       let token = '';
-      const payload = { email: email, sub: socialId };
+      const payload = { email: email, socialId: socialId };
 
       const user = await this.usersRepository.existsByEmail(email);
       if (!user) {
@@ -46,7 +46,7 @@ export class AuthService {
         const info = await this.usersRepository.findUserByEmail(email);
         const jwtPayload = {
           email: info.email,
-          sub: info.socialId,
+          socialId: info.socialId,
           userId: info.id,
         };
         token = this.jwtService.sign(jwtPayload);
@@ -104,7 +104,7 @@ export class AuthService {
           const info = await this.usersRepository.findUserByEmail(email);
           const jwtPayload = {
             email: info.email,
-            sub: info.socialId,
+            socialId: info.socialId,
             userId: info.id,
           };
           token = this.jwtService.sign(jwtPayload);

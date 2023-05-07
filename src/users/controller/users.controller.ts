@@ -25,7 +25,7 @@ export class UsersController {
   @UseGuards(jwtAuthGuard)
   @Get('')
   async getCurrentUser(@CurrentUser() Users) {
-    return Users;
+    return Users.readonlyData;
   }
   @ApiResponse({
     status: 500,

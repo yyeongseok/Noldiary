@@ -5,10 +5,14 @@ import { Users, userSchema } from './users.schema';
 import { UsersService } from './service/users.service';
 import { AuthModule } from 'src/auth/auth.module';
 import { UsersRepository } from './users.repository';
+import { Diary, diarySchema } from 'src/diary/diary.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Users.name, schema: userSchema }]),
+    MongooseModule.forFeature([
+      { name: Users.name, schema: userSchema },
+      { name: Diary.name, schema: diarySchema },
+    ]),
     forwardRef(() => AuthModule),
   ],
   controllers: [UsersController],

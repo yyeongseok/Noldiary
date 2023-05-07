@@ -8,13 +8,17 @@ import { ConfigModule } from '@nestjs/config';
 import { UsersRepository } from 'src/users/users.repository';
 import { jwtStrategy } from './jwt/jwt.strategy';
 import { UsersModule } from 'src/users/users.module';
+import { Diary, diarySchema } from 'src/diary/diary.schema';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    MongooseModule.forFeature([{ name: Users.name, schema: userSchema }]),
+    MongooseModule.forFeature([
+      { name: Users.name, schema: userSchema },
+      { name: Diary.name, schema: diarySchema },
+    ]),
     JwtModule.register({
       secret: process.env.JWT_SECRET,
       signOptions: {
