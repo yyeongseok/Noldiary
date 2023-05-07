@@ -13,7 +13,7 @@ async function bootstrap() {
 
   //Swagger 설정
   app.use(
-    ['/docs', '/docs-json'],
+    ['/Noldiary', '/docs-json'],
     expressBasicAuth({
       challenge: true,
       users: {

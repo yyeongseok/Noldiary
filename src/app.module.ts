@@ -8,6 +8,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import * as Mongoose from 'mongoose';
 import { HttpModule } from '@nestjs/axios';
+import { DiaryModule } from './diary/diary.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { HttpModule } from '@nestjs/axios';
     }),
     UsersModule,
     AuthModule,
+    DiaryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
