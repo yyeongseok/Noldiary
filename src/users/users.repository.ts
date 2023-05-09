@@ -42,10 +42,11 @@ export class UsersRepository {
     });
     return result;
   }
-}
 
-// const result = await this.catModel
-//       .find()
-//       .populate({ path: 'comments', model: this.commentsModel });
-//     // populate 다른 document랑 이어주는 역활을 한다.
-//     return result;
+  async findUserByEmailAndUpdateImg(email: string, filename: string) {
+    const user = await this.UserModel.findOne({ email });
+    user.profileImage = `http://localhost:8000/media/${filename}`;
+    const newUser = await user.save();
+    return newUser.readOnlyData;
+  }
+}
