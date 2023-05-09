@@ -42,7 +42,7 @@ export class UsersController {
     return await this.usersService.updateProfileImage(users, file);
   }
 
-  @Post('')
+  @Get('')
   async signUp() {
     return 'signUp';
   }
