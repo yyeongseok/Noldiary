@@ -3,17 +3,20 @@ import {
   Get,
   Patch,
   Post,
+  UploadedFile,
   UseFilters,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiOperation } from '@nestjs/swagger';
 import { jwtAuthGuard } from 'src/auth/jwt/jwt.guard';
 import { CurrentUser } from 'src/common/decorater/user.decorator';
 import { HttpExceptionFilter } from 'src/common/exception/http-exception.filter';
 import { successInterceptor } from 'src/common/interceptor/success.interceptor';
-import { readonlyUsersDto } from '../dto/users.response.dto';
+import { MulterOption } from 'src/common/utils/multer.options';
 import { UsersService } from '../service/users.service';
+import { Users } from '../users.schema';
 
 @Controller('users')
 @UseInterceptors(successInterceptor)
@@ -27,21 +30,19 @@ export class UsersController {
   async getCurrentUser(@CurrentUser() Users) {
     return Users.readonlyData;
   }
-  @ApiResponse({
-    status: 500,
-    description: 'Server Error...',
-  })
-  @ApiResponse({
-    status: 200,
-    description: '성공!',
-    type: readonlyUsersDto,
-  })
-  @Patch()
-  async updateProfileImage() {
-    return 'updateProfileImage';
+  @ApiOperation({ summary: '회원 프로필 사진 업데이트' })
+  @UseInterceptors(FileInterceptor('image', MulterOption('users')))
+  @UseGuards(jwtAuthGuard)
+  @Post('/upload')
+  async updateProfileImage(
+    @UploadedFile() file: Express.Multer.File,
+    @CurrentUser() users: Users,
+  ) {
+    console.log(file);
+    return await this.usersService.updateProfileImage(users, file);
   }
 
-  @Post('')
+  @Get('')
   async signUp() {
     return 'signUp';
   }

@@ -16,13 +16,25 @@ export class DiaryService {
     try {
       const validateAuthor = await this.usersRepository.findUserByEmail(User);
 
-      const { title, content, thumbnailImageUrl } = diaryData;
+      const {
+        title,
+        description,
+        thumbnailImageUrl,
+        from,
+        to,
+        departure,
+        arrive,
+      } = diaryData;
 
       const newDiary = new this.diaryModel({
         author: validateAuthor.email,
         title,
-        content,
+        description,
         thumbnailImageUrl,
+        from,
+        to,
+        departure,
+        arrive,
       });
       return await newDiary.save();
     } catch (error) {
@@ -34,7 +46,7 @@ export class DiaryService {
     try {
       const validateUser = await this.usersRepository.getUserAndDiary(User);
       const author = validateUser.email;
-      const getDiary = await this.diaryModel.findOne({ author });
+      const getDiary = await this.diaryModel.find({ author });
 
       return getDiary;
     } catch (error) {
