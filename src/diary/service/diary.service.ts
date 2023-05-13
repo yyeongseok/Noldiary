@@ -46,7 +46,7 @@ export class DiaryService {
     try {
       const validateUser = await this.usersRepository.getUserAndDiary(User);
       const author = validateUser.email;
-      const getDiary = await this.diaryModel.find({ author });
+      const getDiary = await this.diaryModel.findOne({ author });
 
       return getDiary;
     } catch (error) {

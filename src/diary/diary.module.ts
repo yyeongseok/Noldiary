@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { AwsService } from 'src/aws/aws.service';
 import { UsersModule } from 'src/users/users.module';
 import { DiaryController } from './controller/diary.controller';
 import { Diary, diarySchema } from './diary.schema';
@@ -11,6 +12,6 @@ import { DiaryService } from './service/diary.service';
     UsersModule,
   ],
   controllers: [DiaryController],
-  providers: [DiaryService],
+  providers: [DiaryService, AwsService],
 })
 export class DiaryModule {}
