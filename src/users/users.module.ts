@@ -7,6 +7,8 @@ import { AuthModule } from 'src/auth/auth.module';
 import { UsersRepository } from './users.repository';
 import { Diary, diarySchema } from 'src/diary/diary.schema';
 import { MulterModule } from '@nestjs/platform-express';
+import { AwsService } from 'src/aws/aws.service';
+import multer, { memoryStorage } from 'multer';
 
 @Module({
   imports: [
@@ -15,12 +17,9 @@ import { MulterModule } from '@nestjs/platform-express';
       { name: Diary.name, schema: diarySchema },
     ]),
     forwardRef(() => AuthModule),
-    MulterModule.register({
-      dest: './upload',
-    }),
   ],
   controllers: [UsersController],
-  providers: [UsersService, UsersRepository],
+  providers: [UsersService, UsersRepository, AwsService],
   exports: [UsersService, UsersRepository],
 })
 export class UsersModule {}

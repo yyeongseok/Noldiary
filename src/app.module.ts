@@ -9,6 +9,9 @@ import { AuthModule } from './auth/auth.module';
 import * as Mongoose from 'mongoose';
 import { HttpModule } from '@nestjs/axios';
 import { DiaryModule } from './diary/diary.module';
+import { AwsService } from './aws/aws.service';
+import { MulterModule } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 
 @Module({
   imports: [
@@ -20,6 +23,10 @@ import { DiaryModule } from './diary/diary.module';
       useNewUrlParser: true,
       useUnifiedTopology: true,
     }),
+    MulterModule.register({
+      dest: './upload',
+      storage: memoryStorage(),
+    }),
     HttpModule.register({
       timeout: 5000,
       maxRedirects: 5,
@@ -29,7 +36,7 @@ import { DiaryModule } from './diary/diary.module';
     DiaryModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, AwsService],
 })
 export class AppModule implements NestModule {
   private readonly isDev: boolean = process.env.MODE === 'dev' ? true : false;

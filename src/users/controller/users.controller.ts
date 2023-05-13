@@ -1,8 +1,10 @@
 import {
+  Body,
   Controller,
   Get,
   Patch,
   Post,
+  Response,
   UploadedFile,
   UseFilters,
   UseGuards,
@@ -11,18 +13,17 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiOperation } from '@nestjs/swagger';
 import { jwtAuthGuard } from 'src/auth/jwt/jwt.guard';
+import { AwsService } from 'src/aws/aws.service';
 import { CurrentUser } from 'src/common/decorater/user.decorator';
 import { HttpExceptionFilter } from 'src/common/exception/http-exception.filter';
 import { successInterceptor } from 'src/common/interceptor/success.interceptor';
-import { MulterOption } from 'src/common/utils/multer.options';
-import { UsersService } from '../service/users.service';
 import { Users } from '../users.schema';
 
 @Controller('users')
 @UseInterceptors(successInterceptor)
 @UseFilters(HttpExceptionFilter)
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly awsService: AwsService) {}
 
   @ApiOperation({ summary: '현재 회원 정보 조회' })
   @UseGuards(jwtAuthGuard)
@@ -30,20 +31,26 @@ export class UsersController {
   async getCurrentUser(@CurrentUser() Users) {
     return Users.readonlyData;
   }
-  @ApiOperation({ summary: '회원 프로필 사진 업데이트' })
-  @UseInterceptors(FileInterceptor('image', MulterOption('users')))
+
+  @ApiOperation({ summary: 'S3에 이미지 업로드 하기' })
+  @UseInterceptors(FileInterceptor('image'))
   @UseGuards(jwtAuthGuard)
   @Post('/upload')
-  async updateProfileImage(
-    @UploadedFile() file: Express.Multer.File,
-    @CurrentUser() users: Users,
-  ) {
+  async updateProfileImage(@UploadedFile() file: Express.Multer.File) {
     console.log(file);
-    return await this.usersService.updateProfileImage(users, file);
+    return await this.awsService.uploadFileToS3('users', file);
   }
 
-  @Get('')
-  async signUp() {
-    return 'signUp';
+  @ApiOperation({ summary: '키값을 통해 유저프로필 S3 url로 변경하기 ' })
+  @UseGuards(jwtAuthGuard)
+  @Post('key')
+  async getImageUrl(
+    @Body('key') key: string,
+    @Response() res,
+    @CurrentUser() users: Users,
+  ) {
+    const newUserProfile = await this.awsService.getAwsS3FileUrl(users, key);
+
+    res.status(200).json({ newUserProfile });
   }
 }

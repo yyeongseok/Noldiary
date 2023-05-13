@@ -45,7 +45,7 @@ export class UsersRepository {
 
   async findUserByEmailAndUpdateImg(email: string, filename: string) {
     const user = await this.UserModel.findOne({ email });
-    user.profileImage = `http://localhost:8000/media/${filename}`;
+    user.profileImage = filename;
     const newUser = await user.save();
     return newUser.readOnlyData;
   }
