@@ -47,6 +47,7 @@ export class UsersRepository {
     const user = await this.UserModel.findOne({ email });
     user.profileImage = filename;
     const newUser = await user.save();
-    return newUser.readOnlyData;
+    console.log(newUser);
+    return newUser.readonlyData;
   }
 }

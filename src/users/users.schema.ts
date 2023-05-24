@@ -46,7 +46,7 @@ export class Users extends Document {
   @IsNotEmpty()
   socialOption: string;
 
-  readonly readOnlyData: {
+  readonly readonlyData: {
     id: string;
     nickname: string;
     email: string;

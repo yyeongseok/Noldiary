@@ -47,7 +47,7 @@ export class AwsService {
           ContentType: file.mimetype,
         })
         .promise();
-      console.log(s3Object);
+      //console.log(s3Object);
       return { key, s3Object, contentType: file.mimetype };
     } catch (error) {
       throw new BadRequestException(`File upload failed : ${error}`);
