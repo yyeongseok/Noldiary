@@ -35,7 +35,7 @@ export class Diary extends Document {
   })
   @IsString()
   @IsNotEmpty()
-  description: string;
+  content: string;
 
   @Prop({
     required: true,
@@ -56,20 +56,6 @@ export class Diary extends Document {
   })
   @IsString()
   @IsNotEmpty()
-  from: string;
-
-  @Prop({
-    required: true,
-  })
-  @IsString()
-  @IsNotEmpty()
-  to: string;
-
-  @Prop({
-    required: true,
-  })
-  @IsString()
-  @IsNotEmpty()
   departure: string;
 
   @Prop({
@@ -77,7 +63,21 @@ export class Diary extends Document {
   })
   @IsString()
   @IsNotEmpty()
-  arrive: string;
+  arrival: string;
+
+  @Prop({
+    required: true,
+  })
+  @IsString()
+  @IsNotEmpty()
+  departureDate: Date;
+
+  @Prop({
+    required: true,
+  })
+  @IsString()
+  @IsNotEmpty()
+  arriveDate: Date;
 
   @Prop({
     default: false,
@@ -89,13 +89,13 @@ export class Diary extends Document {
   readonly readonlyData: {
     author: string;
     title: string;
-    description: string;
+    content: string;
     thumbnailImageUrl: string;
     public: boolean;
-    from: string;
-    to: string;
     departure: string;
-    arrive: string;
+    arrival: string;
+    departureDate: Date;
+    arriveDate: Date;
     bookmark: boolean;
   };
 }
@@ -106,13 +106,13 @@ diarySchema.virtual('readonlyData').get(function (this: Diary) {
   return {
     author: this.author,
     title: this.title,
-    description: this.description,
+    content: this.content,
     thumbnailImageUrl: this.thumbnailImageUrl,
     public: this.public,
-    from: this.from,
-    to: this.to,
     departure: this.departure,
-    arrive: this.arrive,
+    arrival: this.arrival,
+    departureDate: this.departureDate,
+    arriveDate: this.arriveDate,
     bookmark: this.bookmark,
   };
 });

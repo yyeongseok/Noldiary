@@ -3,10 +3,10 @@ import { Diary } from '../diary.schema';
 
 export class diaryCreateDto extends PickType(Diary, [
   'title',
-  'description',
+  'content',
   'thumbnailImageUrl',
-  'from',
-  'to',
   'departure',
-  'arrive',
+  'arrival',
+  'departureDate',
+  'arriveDate',
 ] as const) {}

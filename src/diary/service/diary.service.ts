@@ -18,23 +18,23 @@ export class DiaryService {
 
       const {
         title,
-        description,
+        content,
         thumbnailImageUrl,
-        from,
-        to,
         departure,
-        arrive,
+        arrival,
+        departureDate,
+        arriveDate,
       } = diaryData;
 
       const newDiary = new this.diaryModel({
         author: validateAuthor.email,
         title,
-        description,
+        content,
         thumbnailImageUrl,
-        from,
-        to,
         departure,
-        arrive,
+        arrival,
+        departureDate,
+        arriveDate,
       });
       return await newDiary.save();
     } catch (error) {
@@ -46,7 +46,19 @@ export class DiaryService {
     try {
       const validateUser = await this.usersRepository.getUserAndDiary(User);
       const author = validateUser.email;
-      const getDiary = await this.diaryModel.findOne({ author });
+      console.log(author);
+      const getDiary = await this.diaryModel.find({ author });
+
+      return getDiary;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async getDiaryById(_id: string) {
+    try {
+      console.log(_id);
+      const getDiary = await this.diaryModel.findOne({ _id });
 
       return getDiary;
     } catch (error) {

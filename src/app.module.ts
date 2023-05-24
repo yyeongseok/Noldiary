@@ -12,6 +12,7 @@ import { DiaryModule } from './diary/diary.module';
 import { AwsService } from './aws/aws.service';
 import { MulterModule } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
+import { S3Service } from './s3/s3.service';
 
 @Module({
   imports: [
@@ -36,7 +37,7 @@ import { memoryStorage } from 'multer';
     DiaryModule,
   ],
   controllers: [AppController],
-  providers: [AppService, AwsService],
+  providers: [AppService, AwsService, S3Service],
 })
 export class AppModule implements NestModule {
   private readonly isDev: boolean = process.env.MODE === 'dev' ? true : false;

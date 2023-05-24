@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Param,
   Patch,
   Post,
   UseFilters,
@@ -17,8 +18,8 @@ import { HttpExceptionFilter } from 'src/common/exception/http-exception.filter'
 import { successInterceptor } from 'src/common/interceptor/success.interceptor';
 import { diaryCreateDto } from '../dto/diary.create.dto';
 import { DiaryService } from '../service/diary.service';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { S3Service } from 'src/s3/s3.service';
+import * as path from 'path';
 
 @Controller('diary')
 @UseInterceptors(successInterceptor)
@@ -27,6 +28,7 @@ export class DiaryController {
   constructor(
     private readonly diaryService: DiaryService,
     private readonly configService: ConfigService,
+    private readonly s3Service: S3Service,
   ) {}
 
   @ApiOperation({ summary: '여행 일기 작성' })
@@ -35,12 +37,19 @@ export class DiaryController {
   async createDiary(@CurrentUser() User, @Body() body: diaryCreateDto) {
     return this.diaryService.createDiary(User, body);
   }
-  @ApiOperation({ summary: '여행 일기 조회' })
+  @ApiOperation({ summary: '회원별 여행 일기 조회' })
   @UseGuards(jwtAuthGuard)
   @Get('')
   async getUserAndDiary(@CurrentUser() User) {
     return this.diaryService.getDiary(User.email);
   }
+  @ApiOperation({ summary: '여행일기 상세 조회' })
+  @UseGuards(jwtAuthGuard)
+  @Get('/:id')
+  async getDiaryById(@Param('id') id: string) {
+    return this.diaryService.getDiaryById(id);
+  }
+
   @ApiOperation({ summary: '여행 일기 업데이트' })
   @UseGuards(jwtAuthGuard)
   @Patch('')
@@ -55,27 +64,25 @@ export class DiaryController {
     return 'deleteDiary';
   }
 
+  @ApiOperation({ summary: 'S3 presigned Url' })
   @Post('/create/presigned')
-  async presigned(
-    @Body('filename') filename: string,
-    //@Body('type') type: string,
-  ) {
-    const client = new S3Client({
-      region: this.configService.get('AWS_S3_REGION'),
-      credentials: {
-        accessKeyId: this.configService.get('AWS_S3_ACCESS_KEY'), // process.env.AWS_S3_ACCESS_KEY
-        secretAccessKey: this.configService.get('AWS_S3_SECRET_KEY'),
-      },
-    });
-    //const type = 'image/jpeg';
-    const date = new Date();
-    date.setMinutes(date.getMinutes() + 1);
-    const command = new PutObjectCommand({
-      Bucket: this.configService.get('AWS_S3_BUCKET_NAME'),
-      Key: filename,
-      ContentType: 'image/jpeg',
-      Expires: date,
-    });
-    return await getSignedUrl(client, command);
+  async generatePresignedUrl(
+    @Body('file') file: string,
+  ): Promise<{ url: string }> {
+    const bucketName = this.configService.get('AWS_S3_BUCKET_NAME');
+
+    const objectKey = `image/${Date.now()}_${file}`;
+
+    const contentType = 'image/*';
+    const expirationSeconds = 3600;
+
+    const signedUrl = await this.s3Service.generatePresignedUrl(
+      bucketName,
+      objectKey,
+      contentType,
+      expirationSeconds,
+    );
+
+    return { url: signedUrl };
   }
 }
