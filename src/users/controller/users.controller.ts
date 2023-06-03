@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Get,
-  Patch,
   Post,
   Response,
   UploadedFile,
@@ -33,10 +32,6 @@ export class UsersController {
     return Users.readonlyData;
   }
   @ApiResponse({
-    status: 500,
-    description: 'Server Error...',
-  })
-  @ApiResponse({
     status: 200,
     description: '성공!',
     type: readonlyUsersDto,
@@ -51,7 +46,7 @@ export class UsersController {
   }
 
   @ApiOperation({ summary: '키값을 통해 유저프로필 S3 url로 변경하기 ' })
-  @UseGuards(jwtAuthGuard)
+  //@UseGuards(jwtAuthGuard)
   @Post('key')
   async getImageUrl(
     @Body('key') key: string,
