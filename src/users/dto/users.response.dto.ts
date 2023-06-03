@@ -7,8 +7,18 @@ export class readonlyUsersDto extends PickType(Users, [
   'profileImage',
 ] as const) {
   @ApiProperty({
-    example: 'email@email.com',
+    example: 'test@email.com',
     description: 'email',
   })
   email: string;
+  @ApiProperty({
+    example: 'User 이름',
+    description: 'User 이름',
+  })
+  nickname: string;
+  @ApiProperty({
+    example: 'imageUrl',
+    description: 'imageUrl',
+  })
+  profileImage: string;
 }

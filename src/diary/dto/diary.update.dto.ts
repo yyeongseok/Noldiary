@@ -1,7 +1,7 @@
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import { Diary } from '../diary.schema';
 
-export class diaryCreateDto extends PickType(Diary, [
+export class diaryUpdateDto extends PickType(Diary, [
   'title',
   'departure',
   'destination',
@@ -9,6 +9,8 @@ export class diaryCreateDto extends PickType(Diary, [
   'arrivalDate',
   'thumbnailImageUrl',
   'contents',
+  'public',
+  'bookmark',
   //'invitedemail',
 ] as const) {
   @ApiProperty({
@@ -46,4 +48,14 @@ export class diaryCreateDto extends PickType(Diary, [
     description: '내용 컨텐츠',
   })
   contents: string;
+  @ApiProperty({
+    example: '다이어리 공개or비공개',
+    description: '다이어리 공개or비공개',
+  })
+  public: boolean;
+  @ApiProperty({
+    example: '다이어리 관심',
+    description: '다이어리 관심',
+  })
+  bookmark: boolean;
 }

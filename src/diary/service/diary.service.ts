@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { UsersRepository } from 'src/users/users.repository';
 import { Diary } from '../diary.schema';
 import { diaryCreateDto } from '../dto/diary.create.dto';
+import { diaryUpdateDto } from '../dto/diary.update.dto';
 
 @Injectable()
 export class DiaryService {
@@ -18,26 +19,29 @@ export class DiaryService {
 
       const {
         title,
-        content,
-        thumbnailImageUrl,
+        contents,
+        //thumbnailImageUrl,
         departure,
-        arrival,
+        destination,
         departureDate,
-        arriveDate,
+        arrivalDate,
+        //invitedemail,
       } = diaryData;
 
       const newDiary = new this.diaryModel({
         author: validateAuthor.email,
         title,
-        content,
-        thumbnailImageUrl,
+        contents,
+        //thumbnailImageUrl,
         departure,
-        arrival,
+        destination,
         departureDate,
-        arriveDate,
+        arrivalDate,
+        //invitedemail,
       });
       return await newDiary.save();
     } catch (error) {
+      console.log(error.message);
       throw new BadRequestException(error.message);
     }
   }
@@ -61,6 +65,41 @@ export class DiaryService {
       const getDiary = await this.diaryModel.findOne({ _id });
 
       return getDiary;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async updateDiary(
+    _id: string,
+    diaryUpdateData: diaryUpdateDto,
+    User: string,
+  ) {
+    try {
+      const findDiary = await this.diaryModel.findById(_id);
+
+      if (findDiary.author === User || findDiary.invitedemail === User) {
+        const updateDiary = await this.diaryModel.findByIdAndUpdate(
+          _id,
+          diaryUpdateData,
+        );
+        return updateDiary;
+      }
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async deleteDiary(_id: string) {
+    try {
+      console.log(_id);
+      const result = await this.diaryModel.deleteOne({ _id });
+
+      console.log(result);
+
+      if (result.deletedCount !== 1) {
+        throw new BadRequestException(`해당 일기 ${_id}를 찾을수 없습니다.`);
+      }
     } catch (error) {
       throw new BadRequestException(error.message);
     }

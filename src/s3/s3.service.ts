@@ -20,13 +20,11 @@ export class S3Service {
   async generatePresignedUrl(
     bucketName: string,
     objectKey: string,
-    contentType: string,
     expirationSeconds: number,
   ): Promise<string> {
     const command = new PutObjectCommand({
       Bucket: bucketName,
       Key: objectKey,
-      ContentType: contentType,
     });
 
     const signedUrl = await getSignedUrl(this.s3Client, command, {
