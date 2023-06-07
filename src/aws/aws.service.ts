@@ -63,24 +63,23 @@ export class AwsService {
       );
     return updateUserProfile;
   }
+  async deleteS3Object(
+    key: string,
+    callback?: (err: AWS.AWSError, data: AWS.S3.DeleteObjectOutput) => void,
+  ): Promise<{ success: true }> {
+    try {
+      await this.awsS3
+        .deleteObject(
+          {
+            Bucket: this.S3_BUCKET_NAME,
+            Key: key,
+          },
+          callback,
+        )
+        .promise();
+      return { success: true };
+    } catch (error) {
+      throw new BadRequestException(`Failed to delete file : ${error}`);
+    }
+  }
 }
-//   async deleteS3Object(
-//     key: string,
-//     callback?: (err: AWS.AWSError, data: AWS.S3.DeleteObjectOutput) => void,
-//   ): Promise<{ success: true }> {
-//     try {
-//       await this.awsS3
-//         .deleteObject(
-//           {
-//             Bucket: this.S3_BUCKET_NAME,
-//             Key: key,
-//           },
-//           callback,
-//         )
-//         .promise();
-//       return { success: true };
-//     } catch (error) {
-//       throw new BadRequestException(`Failed to delete file : ${error}`);
-//     }
-//   }
-// }

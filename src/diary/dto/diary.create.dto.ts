@@ -7,9 +7,11 @@ export class diaryCreateDto extends PickType(Diary, [
   'destination',
   'departureDate',
   'arrivalDate',
-  'thumbnailImageUrl',
+  //'thumbnailImageUrl',
   'contents',
   //'invitedemail',
+  'bookmark',
+  'isPublic',
 ] as const) {
   @ApiProperty({
     example: '제목',
@@ -46,4 +48,14 @@ export class diaryCreateDto extends PickType(Diary, [
     description: '내용 컨텐츠',
   })
   contents: string;
+  @ApiProperty({
+    example: '북마크',
+    description: '관심일기',
+  })
+  bookmark: boolean;
+  @ApiProperty({
+    example: '공개 비공개',
+    description: '공개 비공개',
+  })
+  public: boolean;
 }
