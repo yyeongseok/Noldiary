@@ -25,8 +25,8 @@ export class S3Service {
     const command = new PutObjectCommand({
       Bucket: bucketName,
       Key: objectKey,
+      ContentType: 'image/*',
     });
-
     const signedUrl = await getSignedUrl(this.s3Client, command, {
       expiresIn: expirationSeconds,
     });

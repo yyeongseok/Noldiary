@@ -9,7 +9,7 @@ export class diaryUpdateDto extends PickType(Diary, [
   'arrivalDate',
   'thumbnailImageUrl',
   'contents',
-  'public',
+  'isPublic',
   'bookmark',
   //'invitedemail',
 ] as const) {

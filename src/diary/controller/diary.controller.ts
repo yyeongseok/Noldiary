@@ -26,6 +26,7 @@ import { diaryCreateDto } from '../dto/diary.create.dto';
 import { DiaryService } from '../service/diary.service';
 import { S3Service } from 'src/s3/s3.service';
 import { diaryUpdateDto } from '../dto/diary.update.dto';
+import { AwsService } from 'src/aws/aws.service';
 
 @Controller('diary')
 @UseInterceptors(successInterceptor)
@@ -35,6 +36,7 @@ export class DiaryController {
     private readonly diaryService: DiaryService,
     private readonly configService: ConfigService,
     private readonly s3Service: S3Service,
+    private readonly AwsService: AwsService,
   ) {}
 
   @ApiOperation({ summary: '여행 일기 작성' })
@@ -95,14 +97,19 @@ export class DiaryController {
     return updateDiary;
   }
 
-  @ApiOperation({ summary: '이메일 초대하기' })
-  @UseGuards(jwtAuthGuard)
-  @Patch('')
-  async inviteEmail() {
-    return 'inviteEmail';
-  }
+  // @ApiOperation({ summary: '이메일 초대하기' })
+  // @UseGuards(jwtAuthGuard)
+  // @ApiParam({
+  //   description: '다이어리ID',
+  //   name: '다이어리ID',
+  // })
+  // @Patch('invite/:id')
+  // async inviteEmail(@Param('id') id: string, @Body('email') email: string) {
+  //   const invite = await this.diaryService.inviteEmail(id, email);
+  //   return invite;
+  //}
   @ApiOperation({ summary: '여행 일기 삭제' })
-  //@UseGuards(jwtAuthGuard)
+  @UseGuards(jwtAuthGuard)
   @Delete('/:id')
   async deleteDiary(@Param('id') id: string): Promise<void> {
     return this.diaryService.deleteDiary(id);
@@ -114,15 +121,37 @@ export class DiaryController {
   async generatePresignedUrl(
     @Body('fileName') fileName: string,
   ): Promise<{ url: string }> {
-    console.log(fileName);
     const bucketName = this.configService.get('AWS_S3_BUCKET_NAME');
-    const objectKey = `image/${Date.now()}_image`;
-    const expirationSeconds = 3600;
+    console.log(fileName);
+    const objectKey = `image/${Date.now()}_${fileName}`;
+    const expirationSeconds = 600;
     const signedUrl = await this.s3Service.generatePresignedUrl(
       bucketName,
       objectKey,
       expirationSeconds,
     );
     return { url: signedUrl };
+  }
+
+  @ApiOperation({ summary: 'S3 image 삭제' })
+  //@UseGuards(jwtAuthGuard)
+  @Post('/delete')
+  async deleteObjectS3(@Body('key') key: string) {
+    //const bucketName = this.configService.get('AWS_S3_BUCKET_NAME');
+    return await this.AwsService.deleteS3Object(key);
+  }
+
+  @ApiOperation({ summary: '다이어리 bookmark 변경' })
+  @Patch('/bookmark/:id')
+  async stateUpdate(@Param('id') id: string) {
+    console.log(id);
+    return this.diaryService.bookMarkUpdate(id);
+  }
+
+  @ApiOperation({ summary: '다이어리 public 변경' })
+  @Patch('/public/:id')
+  async isPublicUpdate(@Param('id') id: string) {
+    console.log(id);
+    return this.diaryService.isPublicUpdate(id);
   }
 }

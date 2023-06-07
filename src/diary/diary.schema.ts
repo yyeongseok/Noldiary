@@ -48,8 +48,7 @@ export class Diary extends Document {
     default: false,
   })
   @IsBoolean()
-  @IsNotEmpty()
-  public: boolean;
+  isPublic: boolean;
 
   @Prop({
     required: true,
@@ -85,24 +84,24 @@ export class Diary extends Document {
   @IsBoolean()
   bookmark: boolean;
 
-  @Prop({
-    required: false,
-  })
-  @IsString()
-  invitedemail: string;
+  // @Prop({
+  //   required: false,
+  // })
+  // @IsString()
+  // invitedemail: string;
 
   readonly readonlyData: {
     author: string;
     title: string;
     content: string;
     thumbnailImageUrl: string;
-    public: boolean;
+    isPublic: boolean;
     departure: string;
     destination: string;
     departureDate: Date;
     arrivalDate: Date;
     bookmark: boolean;
-    invitedemail: string;
+    //invitedemail: string;
   };
 }
 
@@ -114,12 +113,12 @@ diarySchema.virtual('readonlyData').get(function (this: Diary) {
     title: this.title,
     content: this.contents,
     thumbnailImageUrl: this.thumbnailImageUrl,
-    public: this.public,
+    public: this.isPublic,
     departure: this.departure,
     destination: this.destination,
     departureDate: this.departureDate,
     arrivalDate: this.arrivalDate,
     bookmark: this.bookmark,
-    invitedemail: this.invitedemail,
+    //invitedemail: this.invitedemail,
   };
 });

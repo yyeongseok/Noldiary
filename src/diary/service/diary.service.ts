@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { UsersRepository } from 'src/users/users.repository';
@@ -26,6 +30,8 @@ export class DiaryService {
         departureDate,
         arrivalDate,
         //invitedemail,
+        bookmark,
+        isPublic,
       } = diaryData;
 
       const newDiary = new this.diaryModel({
@@ -38,6 +44,8 @@ export class DiaryService {
         departureDate,
         arrivalDate,
         //invitedemail,
+        bookmark,
+        isPublic,
       });
       return await newDiary.save();
     } catch (error) {
@@ -62,7 +70,7 @@ export class DiaryService {
   async getDiaryById(_id: string) {
     try {
       console.log(_id);
-      const getDiary = await this.diaryModel.findOne({ _id });
+      const getDiary = await this.diaryModel.findById({ _id });
 
       return getDiary;
     } catch (error) {
@@ -78,12 +86,14 @@ export class DiaryService {
     try {
       const findDiary = await this.diaryModel.findById(_id);
 
-      if (findDiary.author === User || findDiary.invitedemail === User) {
+      if (findDiary.author === User) {
         const updateDiary = await this.diaryModel.findByIdAndUpdate(
           _id,
           diaryUpdateData,
         );
         return updateDiary;
+      } else {
+        throw new UnauthorizedException('접근 권한이 없습니다');
       }
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -104,4 +114,56 @@ export class DiaryService {
       throw new BadRequestException(error.message);
     }
   }
+
+  async bookMarkUpdate(_id: string) {
+    try {
+      const findDiary = await this.diaryModel.findById(_id);
+      console.log(findDiary);
+
+      if (!findDiary) {
+        throw new BadRequestException(`해당 일기${_id}를 찾을 수 없습니다.`);
+      }
+      if (findDiary.bookmark === true) {
+        findDiary.bookmark = false;
+      } else if (findDiary.bookmark === false) {
+        findDiary.bookmark = true;
+      }
+
+      return await findDiary.save();
+    } catch (error) {
+      console.log(error);
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async isPublicUpdate(_id: string) {
+    try {
+      const findDiary = await this.diaryModel.findById(_id);
+      console.log(findDiary);
+
+      if (!findDiary) {
+        throw new BadRequestException(`해당 일기${_id}를 찾을 수 없습니다.`);
+      }
+      if (findDiary.isPublic === true) {
+        findDiary.isPublic = false;
+      } else if (findDiary.isPublic === false) {
+        findDiary.isPublic = true;
+      }
+
+      return await findDiary.save();
+    } catch (error) {
+      console.log(error);
+      throw new BadRequestException(error.message);
+    }
+  }
+  // async inviteEmail(_id: string, email: string) {
+  //   try {
+  //     const inviteEmail = await this.diaryModel.findById(_id);
+  //     inviteEmail.invitedemail = email;
+
+  //     return await inviteEmail.save();
+  //   } catch (error) {
+  //     throw new BadRequestException(error.message);
+  //   }
+  // }
 }
