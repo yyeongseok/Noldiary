@@ -6,6 +6,7 @@ import { Diary } from 'src/diary/diary.schema';
 const options: SchemaOptions = {
   collection: 'users',
   timestamps: true,
+  versionKey: false,
 };
 
 @Schema(options)

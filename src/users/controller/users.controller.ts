@@ -26,16 +26,16 @@ export class UsersController {
   constructor(private readonly awsService: AwsService) {}
 
   @ApiOperation({ summary: '현재 회원 정보 조회' })
+  @ApiResponse({ type: readonlyUsersDto })
   @UseGuards(jwtAuthGuard)
   @Get('')
   async getCurrentUser(@CurrentUser() Users) {
     return Users.readonlyData;
   }
-  @ApiResponse({
-    status: 200,
-    description: '성공!',
-    type: readonlyUsersDto,
-  })
+  //이름, 프로필 이미지,닉네임(수정하는거),자기상태메세지(빈값가능),작성한 일기 갯수(넘버),공유일기 갯수(넘버)
+  //백그라운 이미지 조회, 업데이트
+  //이미지 업로드 하고 키값을 바로 프론트로 리턴하지 않고 키값으로 s3 url 받아서 데이터 베이스에 저장하기
+
   @ApiOperation({ summary: 'S3에 이미지 업로드 하기' })
   @UseInterceptors(FileInterceptor('image'))
   @UseGuards(jwtAuthGuard)

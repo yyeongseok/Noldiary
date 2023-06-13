@@ -1,12 +1,13 @@
 import { Prop, Schema, SchemaFactory, SchemaOptions } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
+import { IsBoolean, IsDate, IsNotEmpty, IsString } from 'class-validator';
 import { Document, Types } from 'mongoose';
 import { Users } from 'src/users/users.schema';
 
 const options: SchemaOptions = {
   collection: 'diary',
   timestamps: true,
+  versionKey: false,
 };
 
 @Schema(options)
@@ -40,12 +41,12 @@ export class Diary extends Document {
   @Prop({
     required: false,
   })
-  //@IsString()
+  @IsString()
   //@IsNotEmpty()
   thumbnailImageUrl: string;
 
   @Prop({
-    default: false,
+    required: false,
   })
   @IsBoolean()
   isPublic: boolean;
@@ -69,17 +70,17 @@ export class Diary extends Document {
   })
   @IsString()
   @IsNotEmpty()
-  departureDate: Date;
+  departureDate: string;
 
   @Prop({
     required: true,
   })
   @IsString()
   @IsNotEmpty()
-  arrivalDate: Date;
+  arrivalDate: string;
 
   @Prop({
-    default: false,
+    required: false,
   })
   @IsBoolean()
   bookmark: boolean;

@@ -27,6 +27,7 @@ import { DiaryService } from '../service/diary.service';
 import { S3Service } from 'src/s3/s3.service';
 import { diaryUpdateDto } from '../dto/diary.update.dto';
 import { AwsService } from 'src/aws/aws.service';
+import { diaryResponseDto } from '../dto/diary.response.dto';
 
 @Controller('diary')
 @UseInterceptors(successInterceptor)
@@ -52,10 +53,7 @@ export class DiaryController {
   }
 
   @ApiOperation({ summary: '회원별 여행 일기 조회' })
-  @ApiResponse({
-    description: '조회',
-    schema: { example: { success: 'success' } },
-  })
+  @ApiResponse({ type: diaryResponseDto })
   @UseGuards(jwtAuthGuard)
   @Get('')
   async getUserAndDiary(@CurrentUser() User) {
@@ -72,6 +70,7 @@ export class DiaryController {
   async getDiaryById(@Param('id') id: string) {
     return this.diaryService.getDiaryById(id);
   }
+  // 다이어리 검색(Keyword를 통해서 조회된 다이어리 검색)
 
   @ApiOperation({ summary: '여행 일기 업데이트' })
   @ApiParam({

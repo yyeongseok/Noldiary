@@ -6,9 +6,7 @@ import { UsersService } from './service/users.service';
 import { AuthModule } from 'src/auth/auth.module';
 import { UsersRepository } from './users.repository';
 import { Diary, diarySchema } from 'src/diary/diary.schema';
-import { MulterModule } from '@nestjs/platform-express';
 import { AwsService } from 'src/aws/aws.service';
-import multer, { memoryStorage } from 'multer';
 
 @Module({
   imports: [

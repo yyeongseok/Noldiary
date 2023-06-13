@@ -38,12 +38,12 @@ export class diaryResponseDto extends PickType(Diary, [
     example: '출발날짜',
     description: '출발날짜',
   })
-  departureDate: Date;
+  departureDate: string;
   @ApiProperty({
     example: '도착날짜',
     description: '도착날짜',
   })
-  arrivalDate: Date;
+  arrivalDate: string;
   @ApiProperty({
     example: '썸네일 이미지',
     description: '썸네일 이미지',
