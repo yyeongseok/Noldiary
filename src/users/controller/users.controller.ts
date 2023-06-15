@@ -17,20 +17,25 @@ import { CurrentUser } from 'src/common/decorater/user.decorator';
 import { HttpExceptionFilter } from 'src/common/exception/http-exception.filter';
 import { successInterceptor } from 'src/common/interceptor/success.interceptor';
 import { readonlyUsersDto } from '../dto/users.response.dto';
+import { UsersService } from '../service/users.service';
 import { Users } from '../users.schema';
 
 @Controller('users')
 @UseInterceptors(successInterceptor)
 @UseFilters(HttpExceptionFilter)
 export class UsersController {
-  constructor(private readonly awsService: AwsService) {}
+  constructor(
+    private readonly awsService: AwsService,
+    private readonly usersService: UsersService,
+  ) {}
 
   @ApiOperation({ summary: '현재 회원 정보 조회' })
   @ApiResponse({ type: readonlyUsersDto })
   @UseGuards(jwtAuthGuard)
   @Get('')
-  async getCurrentUser(@CurrentUser() Users) {
-    return Users.readonlyData;
+  async getCurrentUser(@CurrentUser() User) {
+    const getUserInfo = await this.usersService.getUserInfo(User.email);
+    return getUserInfo;
   }
   //이름, 프로필 이미지,닉네임(수정하는거),자기상태메세지(빈값가능),작성한 일기 갯수(넘버),공유일기 갯수(넘버)
   //백그라운 이미지 조회, 업데이트

@@ -57,5 +57,5 @@ export class diaryCreateDto extends PickType(Diary, [
     example: '공개 비공개',
     description: '공개 비공개',
   })
-  public: boolean;
+  isPublic: boolean;
 }

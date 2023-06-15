@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseFilters,
   UseGuards,
   UseInterceptors,
@@ -16,6 +17,7 @@ import {
   ApiCreatedResponse,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiResponse,
 } from '@nestjs/swagger';
 import { jwtAuthGuard } from 'src/auth/jwt/jwt.guard';
@@ -60,6 +62,21 @@ export class DiaryController {
     return this.diaryService.getDiary(User.email);
   }
 
+  @ApiOperation({ summary: '일기 키워드 검색' })
+  @ApiQuery({
+    description: '검색키워드',
+    name: '검색키워드',
+  })
+  @UseGuards(jwtAuthGuard)
+  @Get('/keyword')
+  async getDiaryByKeyword(
+    @CurrentUser() User,
+    @Query('keyword') keyword: string,
+  ) {
+    console.log(keyword);
+    return this.diaryService.getDiaryByKeyword(User.email, keyword);
+  }
+
   @ApiOperation({ summary: '여행일기 상세 조회' })
   @ApiParam({
     description: '다이어리ID',
@@ -70,7 +87,6 @@ export class DiaryController {
   async getDiaryById(@Param('id') id: string) {
     return this.diaryService.getDiaryById(id);
   }
-  // 다이어리 검색(Keyword를 통해서 조회된 다이어리 검색)
 
   @ApiOperation({ summary: '여행 일기 업데이트' })
   @ApiParam({
@@ -107,6 +123,7 @@ export class DiaryController {
   //   const invite = await this.diaryService.inviteEmail(id, email);
   //   return invite;
   //}
+
   @ApiOperation({ summary: '여행 일기 삭제' })
   @UseGuards(jwtAuthGuard)
   @Delete('/:id')

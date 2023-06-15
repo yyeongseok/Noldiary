@@ -24,16 +24,22 @@ export class AuthService {
 
     if (responseUserInfo.status === 200) {
       const email = responseUserInfo.data.kakao_account.email;
-      const nickname = responseUserInfo.data.properties.nickname;
+      const name = responseUserInfo.data.properties.nickname;
       const profileImage = responseUserInfo.data.properties.profile_image;
       const socialId = responseUserInfo.data.id;
       const socialOption = 'kakao';
+      const message = '';
+      const backgroundImgUrl = '';
+      const nickname = '';
       const kakaoUser = {
         email,
-        nickname,
+        name,
         profileImage,
         socialId,
         socialOption,
+        message,
+        backgroundImgUrl,
+        nickname,
       };
       let token = '';
       const payload = { email: email, socialId: socialId };
@@ -82,16 +88,22 @@ export class AuthService {
           },
         });
         const email = getNaverUserInfo.data.response.email;
-        const nickname = getNaverUserInfo.data.response.name;
+        const name = getNaverUserInfo.data.response.name;
         const profileImage = getNaverUserInfo.data.response.profile_image;
         const socialId = getNaverUserInfo.data.response.id;
         const socialOption = 'NAVER';
+        const message = '';
+        const backgroundImgUrl = '';
+        const nickname = '';
         const naverUser = {
           email,
-          nickname,
+          name,
           profileImage,
           socialId,
           socialOption,
+          message,
+          backgroundImgUrl,
+          nickname,
         };
         let token = '';
         const payload = { email: email, socialId: socialId };
