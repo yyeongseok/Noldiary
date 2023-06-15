@@ -9,10 +9,10 @@ import { AuthModule } from './auth/auth.module';
 import * as Mongoose from 'mongoose';
 import { HttpModule } from '@nestjs/axios';
 import { DiaryModule } from './diary/diary.module';
-import { AwsService } from './aws/aws.service';
 import { MulterModule } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { S3Service } from './s3/s3.service';
+import { AwsService } from './aws/aws.service';
 
 @Module({
   imports: [
@@ -37,7 +37,7 @@ import { S3Service } from './s3/s3.service';
     DiaryModule,
   ],
   controllers: [AppController],
-  providers: [AppService, AwsService, S3Service],
+  providers: [AppService, S3Service, AwsService],
 })
 export class AppModule implements NestModule {
   private readonly isDev: boolean = process.env.MODE === 'dev' ? true : false;

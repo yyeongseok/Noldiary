@@ -58,8 +58,11 @@ export class DiaryService {
     try {
       const validateUser = await this.usersRepository.getUserAndDiary(User);
       const author = validateUser.email;
-      console.log(author);
-      const getDiary = await this.diaryModel.find({ author });
+
+      if (!author) {
+        throw new UnauthorizedException('잘못된 접근입니다');
+      }
+      const getDiary = await this.diaryModel.find({ author }, { updatedAt: 0 });
 
       return getDiary;
     } catch (error) {
@@ -70,9 +73,30 @@ export class DiaryService {
   async getDiaryById(_id: string) {
     try {
       console.log(_id);
-      const getDiary = await this.diaryModel.findById({ _id });
+      const getDiary = await this.diaryModel.findById(
+        { _id },
+        { updatedAt: 0 },
+      );
 
       return getDiary;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async getDiaryByKeyword(User: string, keyword: string) {
+    try {
+      const validateUser = await this.usersRepository.getUserAndDiary(User);
+      const author = validateUser.email;
+
+      const regex = new RegExp(keyword, 'i');
+
+      const find = await this.diaryModel.find({
+        author,
+        $or: [{ title: regex }, { contents: regex }],
+      });
+
+      return find;
     } catch (error) {
       throw new BadRequestException(error.message);
     }

@@ -16,4 +16,10 @@ export class usersRequestDto {
   @IsNumber()
   @IsNotEmpty()
   socialId: string;
+
+  @IsString()
+  message: string;
+
+  @IsString()
+  backgroundImgUrl: string;
 }

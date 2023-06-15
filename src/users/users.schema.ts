@@ -16,7 +16,7 @@ export class Users extends Document {
   })
   @IsString()
   @IsNotEmpty()
-  nickname: string;
+  name: string;
 
   @Prop({
     required: true,
@@ -47,13 +47,32 @@ export class Users extends Document {
   @IsNotEmpty()
   socialOption: string;
 
+  @Prop({
+    required: false,
+    //default: 'test',
+  })
+  @IsString()
+  message: string;
+
+  @Prop({
+    required: false,
+    //default: 'test',
+  })
+  @IsString()
+  backgroundImgUrl: string;
+
+  @Prop({
+    required: false,
+  })
+  @IsString()
+  nickname: string;
+
   readonly readonlyData: {
-    id: string;
-    nickname: string;
-    email: string;
+    name: string;
     profileImage: string;
-    socialOption: string;
-    diary: Diary;
+    message: string;
+    backgroundImaUrl: string;
+    nickname: string;
   };
 
   readonly diary: Diary[];
@@ -63,12 +82,11 @@ export const _userSchema = SchemaFactory.createForClass(Users);
 
 _userSchema.virtual('readonlyData').get(function (this: Users) {
   return {
-    id: this.id,
-    nickname: this.nickname,
-    email: this.email,
+    name: this.name,
     profileImage: this.profileImage,
-    socialOption: this.socialOption,
-    diary: this.diary,
+    message: this.message,
+    backgroundImgUrl: this.backgroundImgUrl,
+    nickname: this.nickname,
   };
 });
 
