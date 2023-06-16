@@ -8,7 +8,7 @@ export class diaryResponseDto extends PickType(Diary, [
   'destination',
   'departureDate',
   'arrivalDate',
-  'thumbnailImageUrl',
+  'thumbnailImage',
   'contents',
   'isPublic',
   'bookmark',
@@ -48,7 +48,7 @@ export class diaryResponseDto extends PickType(Diary, [
     example: '썸네일 이미지',
     description: '썸네일 이미지',
   })
-  thumbnailImageUrl: string;
+  thumbnailImage: string;
   @ApiProperty({
     example: '내용 컨텐츠',
     description: '내용 컨텐츠',

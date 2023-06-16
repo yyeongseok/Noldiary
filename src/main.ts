@@ -5,13 +5,15 @@ import { HttpExceptionFilter } from 'src/common/exception/http-exception.filter'
 import { AppModule } from './app.module';
 import * as expressBasicAuth from 'express-basic-auth';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import * as express from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
   app.useGlobalFilters(new HttpExceptionFilter());
-
+  app.use(express.json({ limit: '50mb' }));
+  app.use(express.urlencoded({ limit: '50mb', extended: true }));
   //Swagger 설정
   app.use(
     ['/Noldiary', '/docs-json'],
