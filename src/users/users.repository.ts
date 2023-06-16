@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Diary } from 'src/diary/diary.schema';
 import { usersRequestDto } from './dto/users.request.dto';
+import { usersUpdateDto } from './dto/users.update.dto';
 import { Users } from './users.schema';
 
 @Injectable()
@@ -49,13 +50,22 @@ export class UsersRepository {
     console.log(newUser);
     return newUser.readonlyData;
   }
+  async findUserByEmailAndUpdateInfo(email: string, body: usersUpdateDto) {
+    const user = await this.UserModel.findOne({ email });
+    user.nickname = body.nickname;
+    user.profileImage = body.profileImage;
+    user.backgroundImgUrl = body.backgroundImgUrl;
 
-  // async test (email: string) {
-  //   const diary = await this.DiaryModel.find({ email });
+    const newUser = await user.save();
 
-  //   const check = diary[0].isPublic;
-  // }
+    return newUser.readonlyData;
+  }
 }
+// async test (email: string) {
+//   const diary = await this.DiaryModel.find({ email });
+
+//   const check = diary[0].isPublic;
+// }
 
 // const result = await this.catModel
 //       .find()

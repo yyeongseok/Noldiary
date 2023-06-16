@@ -24,7 +24,7 @@ export class DiaryService {
       const {
         title,
         contents,
-        //thumbnailImageUrl,
+        thumbnailImage,
         departure,
         destination,
         departureDate,
@@ -38,7 +38,7 @@ export class DiaryService {
         author: validateAuthor.email,
         title,
         contents,
-        //thumbnailImageUrl,
+        thumbnailImage,
         departure,
         destination,
         departureDate,
@@ -49,7 +49,7 @@ export class DiaryService {
       });
       return await newDiary.save();
     } catch (error) {
-      console.log(error.message);
+      console.log(error);
       throw new BadRequestException(error.message);
     }
   }

@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Patch,
   Post,
   Response,
   UploadedFile,
@@ -17,6 +18,7 @@ import { CurrentUser } from 'src/common/decorater/user.decorator';
 import { HttpExceptionFilter } from 'src/common/exception/http-exception.filter';
 import { successInterceptor } from 'src/common/interceptor/success.interceptor';
 import { readonlyUsersDto } from '../dto/users.response.dto';
+import { usersUpdateDto } from '../dto/users.update.dto';
 import { UsersService } from '../service/users.service';
 import { Users } from '../users.schema';
 
@@ -33,13 +35,10 @@ export class UsersController {
   @ApiResponse({ type: readonlyUsersDto })
   @UseGuards(jwtAuthGuard)
   @Get('')
-  async getCurrentUser(@CurrentUser() User) {
-    const getUserInfo = await this.usersService.getUserInfo(User.email);
+  async getCurrentUser(@CurrentUser() user) {
+    const getUserInfo = await this.usersService.getUserInfo(user.email);
     return getUserInfo;
   }
-  //이름, 프로필 이미지,닉네임(수정하는거),자기상태메세지(빈값가능),작성한 일기 갯수(넘버),공유일기 갯수(넘버)
-  //백그라운 이미지 조회, 업데이트
-  //이미지 업로드 하고 키값을 바로 프론트로 리턴하지 않고 키값으로 s3 url 받아서 데이터 베이스에 저장하기
 
   @ApiOperation({ summary: 'S3에 이미지 업로드 하기' })
   @UseInterceptors(FileInterceptor('image'))
@@ -51,15 +50,24 @@ export class UsersController {
   }
 
   @ApiOperation({ summary: '키값을 통해 유저프로필 S3 url로 변경하기 ' })
-  //@UseGuards(jwtAuthGuard)
+  @UseGuards(jwtAuthGuard)
   @Post('key')
-  async getImageUrl(
-    @Body('key') key: string,
-    @Response() res,
-    @CurrentUser() users: Users,
-  ) {
-    const newUserProfile = await this.awsService.getAwsS3FileUrl(users, key);
+  async getImageUrl(@Body('key') key: string, @CurrentUser() user: Users) {
+    const newUserProfile = await this.awsService.getAwsS3FileUrl(user, key);
 
-    res.status(200).json({ newUserProfile: newUserProfile });
+    return newUserProfile;
+  }
+  @ApiOperation({ summary: '회원정보 변경' })
+  @UseGuards(jwtAuthGuard)
+  @Patch('')
+  async updateUserInfo(
+    @CurrentUser() user: Users,
+    @Body('body') body: usersUpdateDto,
+  ) {
+    const updateUserInfo = await this.usersService.updateUserInfo(
+      user.email,
+      body,
+    );
+    return updateUserInfo;
   }
 }

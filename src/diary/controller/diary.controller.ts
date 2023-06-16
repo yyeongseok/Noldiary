@@ -132,7 +132,7 @@ export class DiaryController {
   }
 
   @ApiOperation({ summary: 'S3 presigned Url' })
-  //@UseGuards(jwtAuthGuard)
+  @UseGuards(jwtAuthGuard)
   @Post('/presigned')
   async generatePresignedUrl(
     @Body('fileName') fileName: string,
@@ -150,7 +150,7 @@ export class DiaryController {
   }
 
   @ApiOperation({ summary: 'S3 image 삭제' })
-  //@UseGuards(jwtAuthGuard)
+  @UseGuards(jwtAuthGuard)
   @Post('/delete')
   async deleteObjectS3(@Body('key') key: string) {
     //const bucketName = this.configService.get('AWS_S3_BUCKET_NAME');
@@ -158,6 +158,7 @@ export class DiaryController {
   }
 
   @ApiOperation({ summary: '다이어리 bookmark 변경' })
+  @UseGuards(jwtAuthGuard)
   @Patch('/bookmark/:id')
   async stateUpdate(@Param('id') id: string) {
     console.log(id);
@@ -165,6 +166,7 @@ export class DiaryController {
   }
 
   @ApiOperation({ summary: '다이어리 public 변경' })
+  @UseGuards(jwtAuthGuard)
   @Patch('/public/:id')
   async isPublicUpdate(@Param('id') id: string) {
     console.log(id);

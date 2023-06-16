@@ -42,8 +42,8 @@ export class Diary extends Document {
     required: false,
   })
   @IsString()
-  //@IsNotEmpty()
-  thumbnailImageUrl: string;
+  @IsNotEmpty()
+  thumbnailImage: string;
 
   @Prop({
     required: false,
@@ -95,7 +95,7 @@ export class Diary extends Document {
     author: string;
     title: string;
     content: string;
-    thumbnailImageUrl: string;
+    thumbnailImage: string;
     isPublic: boolean;
     departure: string;
     destination: string;
@@ -113,7 +113,7 @@ diarySchema.virtual('readonlyData').get(function (this: Diary) {
     author: this.author,
     title: this.title,
     content: this.contents,
-    thumbnailImageUrl: this.thumbnailImageUrl,
+    thumbnailImageUrl: this.thumbnailImage,
     public: this.isPublic,
     departure: this.departure,
     destination: this.destination,
