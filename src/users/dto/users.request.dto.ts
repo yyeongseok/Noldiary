@@ -21,5 +21,5 @@ export class usersRequestDto {
   message: string;
 
   @IsString()
-  backgroundImgUrl: string;
+  backgroundImage: string;
 }

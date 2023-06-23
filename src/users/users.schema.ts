@@ -59,7 +59,7 @@ export class Users extends Document {
     //default: 'test',
   })
   @IsString()
-  backgroundImgUrl: string;
+  backgroundImage: string;
 
   @Prop({
     required: false,
@@ -71,7 +71,7 @@ export class Users extends Document {
     name: string;
     profileImage: string;
     message: string;
-    backgroundImaUrl: string;
+    backgroundImage: string;
     nickname: string;
   };
 
@@ -85,7 +85,7 @@ _userSchema.virtual('readonlyData').get(function (this: Users) {
     name: this.name,
     profileImage: this.profileImage,
     message: this.message,
-    backgroundImgUrl: this.backgroundImgUrl,
+    backgroundImage: this.backgroundImage,
     nickname: this.nickname,
   };
 });

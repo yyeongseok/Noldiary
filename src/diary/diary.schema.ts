@@ -39,15 +39,16 @@ export class Diary extends Document {
   contents: string;
 
   @Prop({
-    required: false,
+    required: true,
   })
   @IsString()
   @IsNotEmpty()
   thumbnailImage: string;
 
   @Prop({
-    required: false,
+    required: true,
   })
+  @IsNotEmpty()
   @IsBoolean()
   isPublic: boolean;
 
@@ -80,8 +81,9 @@ export class Diary extends Document {
   arrivalDate: string;
 
   @Prop({
-    required: false,
+    required: true,
   })
+  @IsNotEmpty()
   @IsBoolean()
   bookmark: boolean;
 
@@ -113,7 +115,7 @@ diarySchema.virtual('readonlyData').get(function (this: Diary) {
     author: this.author,
     title: this.title,
     content: this.contents,
-    thumbnailImageUrl: this.thumbnailImage,
+    thumbnailImage: this.thumbnailImage,
     public: this.isPublic,
     departure: this.departure,
     destination: this.destination,

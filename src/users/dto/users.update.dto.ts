@@ -4,7 +4,7 @@ import { Users } from '../users.schema';
 export class usersUpdateDto extends PickType(Users, [
   'nickname',
   'profileImage',
-  'backgroundImgUrl',
+  'backgroundImage',
 ] as const) {
   @ApiProperty({
     example: 'User 이름',
@@ -20,5 +20,5 @@ export class usersUpdateDto extends PickType(Users, [
     example: 'imageUrl',
     description: 'imageUrl',
   })
-  backgroundImgUrl: string;
+  backgroundImage: string;
 }
