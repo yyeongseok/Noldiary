@@ -1,4 +1,4 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UsersController } from './controller/users.controller';
 import { Users, userSchema } from './users.schema';
@@ -8,6 +8,7 @@ import { UsersRepository } from './users.repository';
 import { Diary, diarySchema } from 'src/diary/diary.schema';
 import { AwsService } from 'src/aws/aws.service';
 import { DiaryModule } from 'src/diary/diary.module';
+import { S3Service } from 'src/s3/s3.service';
 
 @Module({
   imports: [
@@ -15,10 +16,10 @@ import { DiaryModule } from 'src/diary/diary.module';
       { name: Users.name, schema: userSchema },
       { name: Diary.name, schema: diarySchema },
     ]),
-    forwardRef(() => AuthModule),
+    AuthModule,
   ],
   controllers: [UsersController],
-  providers: [UsersService, UsersRepository, AwsService],
+  providers: [UsersService, UsersRepository, AwsService, S3Service],
   exports: [UsersService, UsersRepository],
 })
 export class UsersModule {}

@@ -40,7 +40,7 @@ export class UsersService {
     return { ...userResult, totalMyDiary, totalSharedDiary };
   }
 
-  async updateUserInfo(user: string, body: usersUpdateDto) {
+  async updateUserInfo(user: string, body?: usersUpdateDto) {
     const newUserInfo = await this.usersRepository.findUserByEmailAndUpdateInfo(
       user,
       body,

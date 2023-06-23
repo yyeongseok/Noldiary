@@ -54,21 +54,10 @@ export class UsersRepository {
     const user = await this.UserModel.findOne({ email });
     user.nickname = body.nickname;
     user.profileImage = body.profileImage;
-    user.backgroundImgUrl = body.backgroundImgUrl;
+    user.backgroundImage = body.backgroundImage;
 
     const newUser = await user.save();
 
     return newUser.readonlyData;
   }
 }
-// async test (email: string) {
-//   const diary = await this.DiaryModel.find({ email });
-
-//   const check = diary[0].isPublic;
-// }
-
-// const result = await this.catModel
-//       .find()
-//       .populate({ path: 'comments', model: this.commentsModel });
-//     // populate 다른 document랑 이어주는 역활을 한다.
-//     return result;

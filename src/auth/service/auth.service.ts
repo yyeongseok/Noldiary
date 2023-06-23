@@ -29,7 +29,7 @@ export class AuthService {
       const socialId = responseUserInfo.data.id;
       const socialOption = 'kakao';
       const message = '';
-      const backgroundImgUrl = '';
+      const backgroundImage = '';
       const nickname = '';
       const kakaoUser = {
         email,
@@ -38,7 +38,7 @@ export class AuthService {
         socialId,
         socialOption,
         message,
-        backgroundImgUrl,
+        backgroundImage,
         nickname,
       };
       let token = '';
@@ -93,7 +93,7 @@ export class AuthService {
         const socialId = getNaverUserInfo.data.response.id;
         const socialOption = 'NAVER';
         const message = '';
-        const backgroundImgUrl = '';
+        const backgroundImage = '';
         const nickname = '';
         const naverUser = {
           email,
@@ -102,7 +102,7 @@ export class AuthService {
           socialId,
           socialOption,
           message,
-          backgroundImgUrl,
+          backgroundImage,
           nickname,
         };
         let token = '';
