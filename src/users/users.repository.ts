@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Diary } from 'src/diary/diary.schema';
@@ -50,14 +54,27 @@ export class UsersRepository {
     console.log(newUser);
     return newUser.readonlyData;
   }
-  async findUserByEmailAndUpdateInfo(email: string, body: usersUpdateDto) {
-    const user = await this.UserModel.findOne({ email });
-    user.nickname = body.nickname;
-    user.profileImage = body.profileImage;
-    user.backgroundImage = body.backgroundImage;
+  async findUserByEmailAndUpdateInfo(
+    email: string,
+    updateData: usersUpdateDto,
+  ) {
+    try {
+      const user = await this.UserModel.findOne({ email });
+      if (!user) {
+        throw new NotFoundException('유저가 없습니다');
+      }
+      const { nickname, profileImage, backgroundImage, message } = updateData;
 
-    const newUser = await user.save();
+      user.nickname = nickname || user.nickname;
+      user.profileImage = profileImage || user.profileImage;
+      user.backgroundImage = backgroundImage || user.backgroundImage;
+      user.message = message || user.message;
 
-    return newUser.readonlyData;
+      const updateUser = await user.save();
+
+      return updateUser;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 }

@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Patch,
   Post,
   UploadedFile,
@@ -81,14 +82,14 @@ export class UsersController {
   @ApiOperation({ summary: '회원정보 변경' })
   @UseGuards(jwtAuthGuard)
   @Patch('')
-  async updateUserInfo(
-    @CurrentUser() user: Users,
-    @Body('body') body?: usersUpdateDto,
-  ) {
+  async updateUserInfo(@CurrentUser() user, @Body() body: usersUpdateDto) {
     const updateUserInfo = await this.usersService.updateUserInfo(
       user.email,
       body,
     );
-    return updateUserInfo;
+
+    const updatedUser = await this.usersService.getUser(user.email);
+
+    return updatedUser.readonlyData;
   }
 }

@@ -30,8 +30,7 @@ export class Users extends Document {
     required: true,
   })
   @IsString()
-  @IsNotEmpty()
-  profileImage: string;
+  profileImage?: string;
 
   @Prop({
     required: true,
@@ -48,24 +47,22 @@ export class Users extends Document {
   socialOption: string;
 
   @Prop({
-    required: false,
-    //default: 'test',
+    required: true,
   })
   @IsString()
-  message: string;
+  message?: string;
 
   @Prop({
-    required: false,
-    //default: 'test',
+    required: true,
   })
   @IsString()
-  backgroundImage: string;
+  backgroundImage?: string;
 
   @Prop({
-    required: false,
+    required: true,
   })
   @IsString()
-  nickname: string;
+  nickname?: string;
 
   readonly readonlyData: {
     name: string;

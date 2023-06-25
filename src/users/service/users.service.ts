@@ -28,6 +28,11 @@ export class UsersService {
     return newUserProfile;
   }
 
+  async getUser(User: string) {
+    const getUser = await this.usersRepository.findUserByEmail(User);
+    return getUser;
+  }
+
   async getUserInfo(User: string) {
     const getUser = await this.usersRepository.findUserByEmail(User);
     const userResult = getUser.readonlyData;
@@ -40,10 +45,10 @@ export class UsersService {
     return { ...userResult, totalMyDiary, totalSharedDiary };
   }
 
-  async updateUserInfo(user: string, body?: usersUpdateDto) {
+  async updateUserInfo(user: string, updateData: usersUpdateDto) {
     const newUserInfo = await this.usersRepository.findUserByEmailAndUpdateInfo(
       user,
-      body,
+      updateData,
     );
 
     return newUserInfo;

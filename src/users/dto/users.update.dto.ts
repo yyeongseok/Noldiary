@@ -5,20 +5,26 @@ export class usersUpdateDto extends PickType(Users, [
   'nickname',
   'profileImage',
   'backgroundImage',
+  'message',
 ] as const) {
   @ApiProperty({
     example: 'User 이름',
     description: 'User 이름',
   })
-  nickname: string;
+  nickname?: string;
   @ApiProperty({
     example: 'imageUrl',
     description: 'imageUrl',
   })
-  profileImage: string;
+  profileImage?: string;
   @ApiProperty({
     example: 'imageUrl',
     description: 'imageUrl',
   })
-  backgroundImage: string;
+  backgroundImage?: string;
+  @ApiProperty({
+    example: 'message',
+    description: 'message',
+  })
+  message?: string;
 }
