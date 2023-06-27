@@ -62,19 +62,22 @@ export class DiaryController {
     return this.diaryService.getDiary(User.email);
   }
 
-  @ApiOperation({ summary: '일기 키워드 검색' })
+  @ApiOperation({ summary: '일기 필터 검색' })
   @ApiQuery({
     description: '검색키워드',
     name: '검색키워드',
   })
   @UseGuards(jwtAuthGuard)
-  @Get('/keyword')
+  @Get('/filter')
   async getDiaryByKeyword(
     @CurrentUser() User,
     @Query('keyword') keyword: string,
+    @Query('filter') filter: string,
+    @Query('bookmark') bookmark: boolean,
   ) {
     console.log(keyword);
-    return this.diaryService.getDiaryByKeyword(User.email, keyword);
+    console.log(filter);
+    return this.diaryService.getDiaryByKeyword(User.email, keyword, filter);
   }
 
   @ApiOperation({ summary: '여행일기 상세 조회' })
@@ -106,24 +109,11 @@ export class DiaryController {
     @Body() body: diaryUpdateDto,
     @CurrentUser() User,
   ) {
-    console.log('=-=-=-=-=-=-=-=-=', body);
     const update = await this.diaryService.updateDiary(id, body, User.email);
 
     const updateDiary = await this.diaryService.getDiaryById(id);
     return updateDiary;
   }
-
-  // @ApiOperation({ summary: '이메일 초대하기' })
-  // @UseGuards(jwtAuthGuard)
-  // @ApiParam({
-  //   description: '다이어리ID',
-  //   name: '다이어리ID',
-  // })
-  // @Patch('invite/:id')
-  // async inviteEmail(@Param('id') id: string, @Body('email') email: string) {
-  //   const invite = await this.diaryService.inviteEmail(id, email);
-  //   return invite;
-  //}
 
   @ApiOperation({ summary: '여행 일기 삭제' })
   @UseGuards(jwtAuthGuard)
@@ -174,3 +164,15 @@ export class DiaryController {
     return this.diaryService.isPublicUpdate(id);
   }
 }
+
+// @ApiOperation({ summary: '이메일 초대하기' })
+// @UseGuards(jwtAuthGuard)
+// @ApiParam({
+//   description: '다이어리ID',
+//   name: '다이어리ID',
+// })
+// @Patch('invite/:id')
+// async inviteEmail(@Param('id') id: string, @Body('email') email: string) {
+//   const invite = await this.diaryService.inviteEmail(id, email);
+//   return invite;
+//}
