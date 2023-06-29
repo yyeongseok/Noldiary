@@ -64,8 +64,8 @@ export class DiaryController {
 
   @ApiOperation({ summary: '일기 필터 검색' })
   @ApiQuery({
-    description: '검색키워드',
-    name: '검색키워드',
+    description: '키워드 검색 및 필터',
+    name: '키워드 검색 및 필터',
   })
   @UseGuards(jwtAuthGuard)
   @Get('/filter')
@@ -73,10 +73,7 @@ export class DiaryController {
     @CurrentUser() User,
     @Query('keyword') keyword: string,
     @Query('filter') filter: string,
-    @Query('bookmark') bookmark: boolean,
   ) {
-    console.log(keyword);
-    console.log(filter);
     return this.diaryService.getDiaryByKeyword(User.email, keyword, filter);
   }
 
@@ -151,17 +148,17 @@ export class DiaryController {
   @ApiOperation({ summary: '다이어리 bookmark 변경' })
   @UseGuards(jwtAuthGuard)
   @Patch('/bookmark/:id')
-  async stateUpdate(@Param('id') id: string) {
+  async stateUpdate(@CurrentUser() User, @Param('id') id: string) {
     console.log(id);
-    return this.diaryService.bookMarkUpdate(id);
+    return this.diaryService.bookMarkUpdate(id, User.email);
   }
 
   @ApiOperation({ summary: '다이어리 public 변경' })
   @UseGuards(jwtAuthGuard)
   @Patch('/public/:id')
-  async isPublicUpdate(@Param('id') id: string) {
+  async isPublicUpdate(@CurrentUser() User, @Param('id') id: string) {
     console.log(id);
-    return this.diaryService.isPublicUpdate(id);
+    return this.diaryService.isPublicUpdate(id, User.email);
   }
 }
 

@@ -88,6 +88,8 @@ export class DiaryService {
 
   async getDiaryByKeyword(User: string, keyword: string, filter: string) {
     try {
+      console.log(keyword);
+      console.log(filter);
       const validateUser = await this.usersRepository.getUserAndDiary(User);
       const author = validateUser.email;
       const regex = new RegExp(keyword, 'i');
@@ -95,6 +97,7 @@ export class DiaryService {
         author,
         $or: [{ title: regex }, { contents: regex }],
       };
+      const bookmark = { bookmark: true };
 
       if (filter === 'latest') {
         const find = await this.diaryModel
@@ -108,7 +111,7 @@ export class DiaryService {
         return find;
       } else if (filter === 'bookmark') {
         const find = await this.diaryModel
-          .find({ author, bookmark: true })
+          .find({ $and: [findKeyword, bookmark] })
           .sort({ createdAt: -1 });
         return find;
       }
@@ -154,8 +157,12 @@ export class DiaryService {
     }
   }
 
-  async bookMarkUpdate(_id: string) {
+  async bookMarkUpdate(_id: string, User: string) {
     try {
+      const validateUser = await this.usersRepository.getUserAndDiary(User);
+      if (!validateUser) {
+        throw new UnauthorizedException('접근 권한이 없습니다');
+      }
       const findDiary = await this.diaryModel.findById(_id);
       console.log(findDiary);
 
@@ -175,8 +182,12 @@ export class DiaryService {
     }
   }
 
-  async isPublicUpdate(_id: string) {
+  async isPublicUpdate(_id: string, User: string) {
     try {
+      const validateUser = await this.usersRepository.getUserAndDiary(User);
+      if (!validateUser) {
+        throw new UnauthorizedException('접근 권한이 없습니다');
+      }
       const findDiary = await this.diaryModel.findById(_id);
       console.log(findDiary);
 
