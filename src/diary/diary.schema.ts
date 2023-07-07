@@ -28,27 +28,23 @@ export class Diary extends Document {
     required: true,
   })
   @IsString()
-  @IsNotEmpty()
   title: string;
 
   @Prop({
     required: true,
   })
   @IsString()
-  @IsNotEmpty()
   contents: string;
 
   @Prop({
     required: true,
   })
   @IsString()
-  @IsNotEmpty()
   thumbnailImage: string;
 
   @Prop({
     required: true,
   })
-  @IsNotEmpty()
   @IsBoolean()
   isPublic: boolean;
 
@@ -56,34 +52,29 @@ export class Diary extends Document {
     required: true,
   })
   @IsString()
-  @IsNotEmpty()
   departure: string;
 
   @Prop({
     required: true,
   })
   @IsString()
-  @IsNotEmpty()
   destination: string;
 
   @Prop({
     required: true,
   })
   @IsString()
-  @IsNotEmpty()
   departureDate: string;
 
   @Prop({
     required: true,
   })
   @IsString()
-  @IsNotEmpty()
   arrivalDate: string;
 
   @Prop({
     required: true,
   })
-  @IsNotEmpty()
   @IsBoolean()
   bookmark: boolean;
 

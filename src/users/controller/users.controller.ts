@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Get,
-  Param,
   Patch,
   Post,
   UploadedFile,
@@ -88,8 +87,6 @@ export class UsersController {
       body,
     );
 
-    const updatedUser = await this.usersService.getUser(user.email);
-
-    return updatedUser.readonlyData;
+    return updateUserInfo;
   }
 }

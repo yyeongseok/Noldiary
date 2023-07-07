@@ -52,7 +52,7 @@ export class diaryUpdateDto extends PickType(Diary, [
     example: '다이어리 공개or비공개',
     description: '다이어리 공개or비공개',
   })
-  public: boolean;
+  isPublic: boolean;
   @ApiProperty({
     example: '다이어리 관심',
     description: '다이어리 관심',
