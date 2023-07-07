@@ -108,8 +108,7 @@ export class DiaryController {
   ) {
     const update = await this.diaryService.updateDiary(id, body, User.email);
 
-    const updateDiary = await this.diaryService.getDiaryById(id);
-    return updateDiary;
+    return update;
   }
 
   @ApiOperation({ summary: '여행 일기 삭제' })

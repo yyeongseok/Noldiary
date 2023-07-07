@@ -1,8 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Diary } from 'src/diary/diary.schema';
-import { usersRequestDto } from '../dto/users.request.dto';
 import { usersUpdateDto } from '../dto/users.update.dto';
 import { UsersRepository } from '../users.repository';
 import { Users } from '../users.schema';
@@ -50,7 +49,11 @@ export class UsersService {
       user,
       updateData,
     );
-
-    return newUserInfo;
+    if (newUserInfo) {
+      const findUser = await this.usersRepository.findUserByEmail(user);
+      return findUser.readonlyData;
+    } else {
+      throw new BadRequestException('업데이트된 유저의 정보를 찾을수 없습니다');
+    }
   }
 }

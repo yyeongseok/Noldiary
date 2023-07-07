@@ -74,7 +74,6 @@ export class DiaryService {
 
   async getDiaryById(_id: string) {
     try {
-      console.log(_id);
       const getDiary = await this.diaryModel.findById(
         { _id },
         { updatedAt: 0 },
@@ -88,8 +87,6 @@ export class DiaryService {
 
   async getDiaryByKeyword(User: string, keyword: string, filter: string) {
     try {
-      console.log(keyword);
-      console.log(filter);
       const validateUser = await this.usersRepository.getUserAndDiary(User);
       const author = validateUser.email;
       const regex = new RegExp(keyword, 'i');
@@ -122,18 +119,36 @@ export class DiaryService {
 
   async updateDiary(
     _id: string,
-    diaryUpdateData: diaryUpdateDto,
+    diaryUpdateData: Partial<diaryUpdateDto>,
     User: string,
   ) {
     try {
-      const findDiary = await this.diaryModel.findById(_id);
+      const diary = await this.diaryModel.findById(_id);
 
-      if (findDiary.author === User) {
-        const updateDiary = await this.diaryModel.findByIdAndUpdate(
-          _id,
-          diaryUpdateData,
-        );
-        return updateDiary;
+      if (diary.author === User) {
+        const {
+          title,
+          departure,
+          destination,
+          departureDate,
+          arrivalDate,
+          thumbnailImage,
+          contents,
+          isPublic,
+        } = diaryUpdateData;
+        diary.title = title || diary.title;
+        diary.departure = departure || diary.departure;
+        diary.destination = destination || diary.destination;
+        diary.departureDate = departureDate || diary.departureDate;
+        diary.arrivalDate = arrivalDate || diary.arrivalDate;
+        diary.thumbnailImage = thumbnailImage || diary.thumbnailImage;
+        diary.contents = contents || diary.contents;
+        diary.isPublic = isPublic || diary.isPublic;
+
+        const updateDiary = await diary.save();
+
+        const updatedDiary = await this.diaryModel.findById(_id);
+        return updatedDiary;
       } else {
         throw new UnauthorizedException('접근 권한이 없습니다');
       }
@@ -144,10 +159,7 @@ export class DiaryService {
 
   async deleteDiary(_id: string) {
     try {
-      console.log(_id);
       const result = await this.diaryModel.deleteOne({ _id });
-
-      console.log(result);
 
       if (result.deletedCount !== 1) {
         throw new BadRequestException(`해당 일기 ${_id}를 찾을수 없습니다.`);
@@ -164,8 +176,6 @@ export class DiaryService {
         throw new UnauthorizedException('접근 권한이 없습니다');
       }
       const findDiary = await this.diaryModel.findById(_id);
-      console.log(findDiary);
-
       if (!findDiary) {
         throw new BadRequestException(`해당 일기${_id}를 찾을 수 없습니다.`);
       }
@@ -174,10 +184,8 @@ export class DiaryService {
       } else if (findDiary.bookmark === false) {
         findDiary.bookmark = true;
       }
-
       return await findDiary.save();
     } catch (error) {
-      console.log(error);
       throw new BadRequestException(error.message);
     }
   }
@@ -189,8 +197,6 @@ export class DiaryService {
         throw new UnauthorizedException('접근 권한이 없습니다');
       }
       const findDiary = await this.diaryModel.findById(_id);
-      console.log(findDiary);
-
       if (!findDiary) {
         throw new BadRequestException(`해당 일기${_id}를 찾을 수 없습니다.`);
       }
@@ -199,10 +205,8 @@ export class DiaryService {
       } else if (findDiary.isPublic === false) {
         findDiary.isPublic = true;
       }
-
       return await findDiary.save();
     } catch (error) {
-      console.log(error);
       throw new BadRequestException(error.message);
     }
   }
