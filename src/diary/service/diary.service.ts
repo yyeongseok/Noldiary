@@ -134,6 +134,7 @@ export class DiaryService {
           arrivalDate,
           thumbnailImage,
           contents,
+          bookmark,
           isPublic,
         } = diaryUpdateData;
         diary.title = title || diary.title;
@@ -143,11 +144,13 @@ export class DiaryService {
         diary.arrivalDate = arrivalDate || diary.arrivalDate;
         diary.thumbnailImage = thumbnailImage || diary.thumbnailImage;
         diary.contents = contents || diary.contents;
-        diary.isPublic = isPublic || diary.isPublic;
+        if (bookmark !== undefined) diary.bookmark = bookmark;
+        if (isPublic !== undefined) diary.isPublic = isPublic;
 
         const updateDiary = await diary.save();
 
         const updatedDiary = await this.diaryModel.findById(_id);
+        console.log(updatedDiary);
         return updatedDiary;
       } else {
         throw new UnauthorizedException('접근 권한이 없습니다');

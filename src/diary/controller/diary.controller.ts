@@ -106,6 +106,7 @@ export class DiaryController {
     @Body() body: diaryUpdateDto,
     @CurrentUser() User,
   ) {
+    console.log(body);
     const update = await this.diaryService.updateDiary(id, body, User.email);
 
     return update;

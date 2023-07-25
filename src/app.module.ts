@@ -13,6 +13,7 @@ import { MulterModule } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { S3Service } from './s3/s3.service';
 import { AwsService } from './aws/aws.service';
+import { TourModule } from './tour/tour.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { AwsService } from './aws/aws.service';
     UsersModule,
     AuthModule,
     DiaryModule,
+    TourModule,
   ],
   controllers: [AppController],
   providers: [AppService, S3Service, AwsService],
