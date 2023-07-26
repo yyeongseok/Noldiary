@@ -161,15 +161,3 @@ export class DiaryController {
     return this.diaryService.isPublicUpdate(id, User.email);
   }
 }
-
-// @ApiOperation({ summary: '이메일 초대하기' })
-// @UseGuards(jwtAuthGuard)
-// @ApiParam({
-//   description: '다이어리ID',
-//   name: '다이어리ID',
-// })
-// @Patch('invite/:id')
-// async inviteEmail(@Param('id') id: string, @Body('email') email: string) {
-//   const invite = await this.diaryService.inviteEmail(id, email);
-//   return invite;
-//}

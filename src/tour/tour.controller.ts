@@ -1,13 +1,5 @@
-import {
-  BadRequestException,
-  Controller,
-  Get,
-  Param,
-  Query,
-  Response,
-} from '@nestjs/common';
+import { Controller, Get, Param, Query, Response } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
-import { log } from 'console';
 import { TourService } from './tour.service';
 
 @Controller('tour')
@@ -34,22 +26,41 @@ export class TourController {
   }
 
   @ApiOperation({ summary: '여행지 디테일' })
-  @Get('/main/:contentId')
+  @Get('/main/detail/:contentTypeId/:contentId')
   async detailInfo(
+    @Param('contentTypeId') contentTypeId: number,
     @Param('contentId') contentId: number,
     @Response() res: any,
   ) {
-    const common = await this.tourService.getDetailCommonInfo(contentId);
-    const introduction = await this.tourService.getDetailIntroInfo(contentId);
-    //const course = await this.tourService.getDetailCourseInfo(contentId);
-
-    const detailInfo = { common, introduction }; //course };
-    res.status(200).json({ detailInfo });
+    try {
+      const common = await this.tourService.getDetailCommonInfo(contentId);
+      const introduction = await this.tourService.getDetailIntroInfo(
+        contentId,
+        contentTypeId,
+      );
+      const course = await this.tourService.getDetailCourseInfo(
+        contentId,
+        contentTypeId,
+      );
+      const routine = await this.tourService.getDetailInfo(
+        contentId,
+        contentTypeId,
+      );
+      const image = await this.tourService.getDetailImage(contentId);
+      if (contentTypeId === 25) {
+        const detailInfo = { common, introduction, course, image };
+        return res.status(200).json({ ...detailInfo });
+      } else {
+        const detailInfo = { common, introduction, routine, image };
+        return res.status(200).json({ ...detailInfo });
+      }
+    } catch (error) {
+      console.log(error);
+    }
   }
-
   @ApiOperation({ summary: '소분류별 여행지 조회' })
   @Get('/category/:contentTypeId/:cat3Id/:pageNum')
-  async maincategory(
+  async mainCategory(
     @Param('contentTypeId') contentTypeId: number,
     @Param('cat3Id') cat3Id: string,
     @Param('pageNum') pageNum: number,
