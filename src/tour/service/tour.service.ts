@@ -1,11 +1,24 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { InjectModel } from '@nestjs/mongoose';
 import axios from 'axios';
+import { Model } from 'mongoose';
+import { UsersRepository } from 'src/users/users.repository';
+import { tourFavoriteDto } from '../dto/tour.create.dto';
+import { Tours } from '../tour.schema';
 
 @Injectable()
 export class TourService {
-  constructor(private readonly configService: ConfigService) {}
-  async getInfoSearchTourApi(keyword: string) {
+  constructor(
+    private readonly configService: ConfigService,
+    @InjectModel(Tours.name) private readonly TourModel: Model<Tours>,
+    private readonly usersRepository: UsersRepository,
+  ) {}
+  async getInfoSearchTourApi(keyword: string, pageNum: number) {
     try {
       const result = await axios.get(
         'http://apis.data.go.kr/B551011/KorService1/searchKeyword1',
@@ -14,7 +27,7 @@ export class TourService {
             serviceKey: this.configService.get('TOUR_SECRET_KEY'),
             MobileApp: 'APPTETS',
             MobileOS: 'ETC',
-            pageNo: 1,
+            pageNo: pageNum,
             numOfRows: 12,
             _type: 'json',
             keyword: keyword,
@@ -26,20 +39,21 @@ export class TourService {
       const { data } = result;
       const searchData = data.response.body.items;
       const arr: Array<any> = searchData.item;
-      const search = arr.map(
-        ({ title, firstimage, contentid, contentTypeId }) => ({
+      const content = arr.map(
+        ({ title, firstimage, contentid, contenttypeid }) => ({
           title,
           firstimage,
           contentid,
-          contentTypeId,
+          contenttypeid,
         }),
       );
-      return search[0];
+      const totalCount = data.response.body.totalCount;
+      return { content, totalCount };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
-  async getDetailCommonInfo(contentId: number) {
+  async getDetailCommonInfo(contentId: number, contentTypeId: number) {
     try {
       const commonInfo = await axios.get(
         'http://apis.data.go.kr/B551011/KorService1/detailCommon1',
@@ -50,6 +64,7 @@ export class TourService {
             MobileApp: 'APPTETS',
             MobileOS: 'ETC',
             _type: 'json',
+            contentTypeId: contentTypeId,
             pageNo: 1,
             defaultYN: 'Y',
             firstImageYN: 'Y',
@@ -67,7 +82,16 @@ export class TourService {
       const arr: Array<any> = commonData.item;
       const common = arr.map(
         // eslint-disable-next-line prettier/prettier
-        ({ title, firstimage, overview, contentid, mapx, mapy, addr1, contenttypeid }) => ({
+        ({
+          title,
+          firstimage,
+          overview,
+          contentid,
+          mapx,
+          mapy,
+          addr1,
+          contenttypeid,
+        }) => ({
           title,
           firstimage,
           overview,
@@ -182,11 +206,11 @@ export class TourService {
         return introduction[0]; // contentTypeId === 32, contentid === 2903046
       } else if (contentTypeId === 38) {
         const introduction = arr.map(
-          ({ saleitem, fairday, infocentershopping, opentime }) => ({
+          ({ saleitem, infocentershopping, opentime, restdateshopping }) => ({
             saleitem,
-            fairday,
             infocentershopping,
             opentime,
+            restdateshopping,
           }),
         );
         return introduction[0]; // contentTypeId === 38, contentid === 132786
@@ -255,13 +279,14 @@ export class TourService {
       const { data } = detailInfo;
       const detailData = data.response.body.items;
       if (detailData === '') return [];
+      if (contentTypeId === 32) return [];
       const arr: Array<any> = detailData.item;
       const detail = arr.map(({ serialnum, infoname, infotext }) => ({
         serialnum,
         infoname,
         infotext,
       }));
-      return detail[0];
+      return detail;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -293,7 +318,7 @@ export class TourService {
         originimgurl,
         imgname,
       }));
-      return image[0];
+      return image;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -321,11 +346,14 @@ export class TourService {
       const { data } = result;
       const one = data.response.body.items;
       const itemArr: Array<any> = one.item;
-      const content = itemArr.map(({ title, firstimage, contentid }) => ({
-        title,
-        firstimage,
-        contentid,
-      }));
+      const content = itemArr.map(
+        ({ title, firstimage, contentid, contentTypeid }) => ({
+          title,
+          firstimage,
+          contentid,
+          contentTypeid,
+        }),
+      );
       const totalCount = data.response.body.totalCount;
 
       return { content, totalCount };
@@ -357,28 +385,87 @@ export class TourService {
       const one = data.response.body.items;
       const arr: Array<any> = one.item;
       const content = arr.map(
-        ({ title, contentid, firstimage, contentTypeId }) => ({
+        ({ title, contentid, firstimage, contenttypeid }) => ({
           title,
           contentid,
           firstimage,
-          contentTypeId,
+          contenttypeid,
         }),
       );
-      return content[0];
+      return content;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+  async tourFavorite(User: string, tourData: tourFavoriteDto) {
+    try {
+      const validateAuthor = await this.usersRepository.findUserByEmail(User);
+
+      const { contenttypeid, contentid, title, mapx, mapy, firstimage, addr1 } =
+        tourData;
+
+      const newfavorite = new this.TourModel({
+        user: validateAuthor.email,
+        contenttypeid,
+        contentid,
+        title,
+        mapx,
+        mapy,
+        firstimage,
+        addr1,
+      });
+      return await newfavorite.save();
+    } catch (error) {
+      console.log(error);
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async getTourFavorite(User: string, contentid: number) {
+    try {
+      const validateUser = await this.usersRepository.findUserByEmail(User);
+      const user = validateUser.email;
+
+      if (!user) {
+        throw new UnauthorizedException('잘못된 접근입니다.');
+      }
+      const getTourFavorite = await this.TourModel.findOne(
+        { user, contentid },
+        { _id: 0 },
+        { updateAt: 0 },
+      ).sort({ CreatedAt: -1 });
+
+      if (getTourFavorite === null) {
+        return false;
+      } else {
+        return true;
+      }
+    } catch (error) {
+      console.log(error);
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async getTourFavoriteDetail(User: string, contentid: number) {
+    try {
+      const validateUser = await this.usersRepository.findUserByEmail(User);
+      const user = validateUser.email;
+
+      if (!user) {
+        throw new UnauthorizedException('잘못된 접근입니다.');
+      }
+
+      const getTourFavoriteDetail = await this.TourModel.find(
+        { user, contentid },
+        { title: 1, mapx: 1, mapy: 1, firstimage: 1, addr1: 1, _id: 0 },
+        { updatedAt: 0 },
+      ).sort({ CreatedAt: -1 });
+
+      return getTourFavoriteDetail;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 }
 
-// * 1.소개 정보
-// * 1-1 각 ContentTypeId 별로 소개 정보 최대한 공통 정보만 리스폰스 하기
-// * 1-2 관광코스 (ContentTypeId)는 소개정보 내용이 많이 다르니깐 별도의 서비스 로직 구성
-
-// *2.즐겨찾기
-// * 2-1 저장
-// *로그인*한 유저가 즐겨찾기 버튼을 눌렀을때, contentid, contentTypeId, firstimage, title, address, mapx, mapy를 데이터 베에스에 저장하고
-// *해당 정보를 맵 api에 mapx, mapy 를 통해서 지도에 띄우는 기능
-// * 2-2 불러오기
-// * 저장된 정보(mapx, mapy)로 지도에 핀마크 띄우기
-// * 핀 마크를 눌렀을때 디테일 정보로 넘어갈수 있게 만들기
+// 즐겨찾기 포스트할때 불리언 디폴트로 true
