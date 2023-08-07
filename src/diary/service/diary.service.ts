@@ -147,6 +147,7 @@ export class DiaryService {
         if (bookmark !== undefined) diary.bookmark = bookmark;
         if (isPublic !== undefined) diary.isPublic = isPublic;
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const updateDiary = await diary.save();
 
         const updatedDiary = await this.diaryModel.findById(_id);
