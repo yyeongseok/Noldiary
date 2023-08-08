@@ -392,7 +392,8 @@ export class TourService {
           contenttypeid,
         }),
       );
-      return content;
+      const totalCount = data.response.body.totalCount;
+      return { content, totalCount };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -466,6 +467,21 @@ export class TourService {
       throw new BadRequestException(error.message);
     }
   }
-}
 
-// 즐겨찾기 포스트할때 불리언 디폴트로 true
+  async deleteTourFavorite(User: string, contentid: number) {
+    try {
+      const validateUser = await this.usersRepository.findUserByEmail(User);
+      const user = validateUser.email;
+
+      if (!user) {
+        throw new UnauthorizedException('잘못된 접근입니다.');
+      }
+
+      const deleteTourFavorite = await this.TourModel.deleteOne({ contentid });
+
+      return false;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+}
