@@ -14,7 +14,7 @@ export class tourFavoriteDto extends PickType(Tours, [
     example: 12,
     description: '콘텐트타입아이디',
   })
-  contenttypeid: number;
+  contenttypeid: string;
 
   @ApiProperty({
     example: 2561700,

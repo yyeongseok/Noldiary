@@ -2,6 +2,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -90,24 +91,33 @@ export class TourController {
     @Response() res: any,
   ) {
     const content = await this.tourService.getInfoByCategory(cat3Id, pageNum);
-    res.status(200).json({ content });
+    res.status(200).json({ ...content });
   }
   @ApiOperation({ summary: '즐겨찾기 저장' })
   @UseGuards(jwtAuthGuard)
-  @Post('/favorite')
+  @Post('/like')
   async addFavorite(@CurrentUser() User, @Body() body: tourFavoriteDto) {
-    return this.tourService.tourFavorite(User.email, body);
+    const result = this.tourService.tourFavorite(User.email, body);
+      if (result) {
+        return true;
+      }
   }
   @ApiOperation({ summary: '즐겨찾기 조회' })
   @UseGuards(jwtAuthGuard)
-  @Get('/favorite/:contentId')
+  @Get('/like/:contentId')
   async getFavorite(@CurrentUser() User, @Param('contentId') contentId: number,) {
     return this.tourService.getTourFavorite(User.email,contentId);
+  }
+  @ApiOperation({ summary: '즐겨찾기 삭제' })
+  @UseGuards(jwtAuthGuard)
+  @Delete('/like/:contentId')
+  async deleteFavorite(@CurrentUser() User, @Param('contentId') contentId: number,) {
+    return this.tourService.deleteTourFavorite(User.email,contentId);
   }
 
   @ApiOperation({ summary : '즐겨찾기 디테일 조회 (지도)'})
   @UseGuards(jwtAuthGuard)
-  @Get('/favorite/detail/:contentId')
+  @Get('/like/list/:contentId')
   async getFavoriteDetail(@CurrentUser() User, @Param('contentId') contentId: number,) {
     return this.tourService.getTourFavoriteDetail(User.email, contentId);
   }

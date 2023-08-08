@@ -32,8 +32,8 @@ export class Tours extends Document {
   @Prop({
     required: true,
   })
-  @IsNumber()
-  contenttypeid: number;
+  @IsString()
+  contenttypeid: string;
 
   @ApiProperty({
     description: '즐겨찾기 contentId',
@@ -90,7 +90,7 @@ export class Tours extends Document {
     required: true,
   })
   @Prop({
-    required: true,
+    required: false,
   })
   @IsString()
   addr1: string;
