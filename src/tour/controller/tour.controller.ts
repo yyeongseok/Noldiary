@@ -117,8 +117,8 @@ export class TourController {
 
   @ApiOperation({ summary : '즐겨찾기 디테일 조회 (지도)'})
   @UseGuards(jwtAuthGuard)
-  @Get('/like/list/:contentId')
-  async getFavoriteDetail(@CurrentUser() User, @Param('contentId') contentId: number,) {
-    return this.tourService.getTourFavoriteDetail(User.email, contentId);
+  @Get('/likelist')
+  async getFavoriteDetail(@CurrentUser() User) {
+    return this.tourService.getTourFavoriteDetail(User.email);
   }
 }

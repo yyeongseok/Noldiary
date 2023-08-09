@@ -447,7 +447,7 @@ export class TourService {
     }
   }
 
-  async getTourFavoriteDetail(User: string, contentid: number) {
+  async getTourFavoriteDetail(User: string) {
     try {
       const validateUser = await this.usersRepository.findUserByEmail(User);
       const user = validateUser.email;
@@ -457,9 +457,8 @@ export class TourService {
       }
 
       const getTourFavoriteDetail = await this.TourModel.find(
-        { user, contentid },
-        { title: 1, mapx: 1, mapy: 1, firstimage: 1, addr1: 1, _id: 0 },
-        { updatedAt: 0 },
+        { user },
+        { _id: 0, updatedAt: 0, createdAt: 0, user: 0 },
       ).sort({ CreatedAt: -1 });
 
       return getTourFavoriteDetail;
