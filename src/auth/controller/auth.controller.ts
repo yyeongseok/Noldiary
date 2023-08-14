@@ -1,24 +1,32 @@
 import {
   BadRequestException,
+  Body,
   Controller,
   Post,
   Request,
   Response,
   UnauthorizedException,
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { InjectModel } from '@nestjs/mongoose';
 import { ApiOperation } from '@nestjs/swagger';
+import { Model } from 'mongoose';
+import { Token } from '../refreshtoken.schema';
 import { AuthService } from '../service/auth.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly jwtService: JwtService,
+    @InjectModel(Token.name) private readonly tokenModel: Model<Token>,
+  ) {}
 
   @ApiOperation({ summary: '카카오 로그인' })
   @Post('/login/kakao')
   async kakaotoken(@Request() req, @Response() res): Promise<any> {
     try {
       const accesstoken = req.headers.authorization;
-      console.log(accesstoken);
       if (!accesstoken) {
         throw new BadRequestException('카카오 정보가 없습니다.');
       }
@@ -26,9 +34,9 @@ export class AuthController {
 
       console.log(`kakaoUserInfo: ${JSON.stringify(kakaoAccessToken)}`);
 
-      res.status(201).json({ accessToken: kakaoAccessToken });
+      res.status(201).json({ accessToken: kakaoAccessToken, expiresIn: 3600 });
     } catch (error) {
-      throw new UnauthorizedException('카카오 로그인 실패하였습니다');
+      throw new UnauthorizedException(error.message);
     }
   }
 
@@ -53,5 +61,21 @@ export class AuthController {
       console.log(e);
       throw new UnauthorizedException('네이버 로그인 실패하였습니다.');
     }
+  }
+
+  @ApiOperation({ summary: '리프레쉬 토큰' })
+  @Post('/refresh')
+  async refreshToken(@Body('refreshToken') refreshToken: string) {
+    const dbToken = await this.tokenModel.findOne({ refreshToken });
+
+    if (!dbToken) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+    const payload = { email: dbToken.email };
+    const newAccessToken = this.jwtService.sign(payload, {
+      expiresIn: '1h',
+    });
+
+    return { accessToken: newAccessToken };
   }
 }

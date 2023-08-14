@@ -9,6 +9,7 @@ import { UsersRepository } from 'src/users/users.repository';
 import { jwtStrategy } from './jwt/jwt.strategy';
 import { UsersModule } from 'src/users/users.module';
 import { Diary, diarySchema } from 'src/diary/diary.schema';
+import { Token, tokenSchema } from './refreshtoken.schema';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { Diary, diarySchema } from 'src/diary/diary.schema';
     MongooseModule.forFeature([
       { name: Users.name, schema: userSchema },
       { name: Diary.name, schema: diarySchema },
+      { name: Token.name, schema: tokenSchema },
     ]),
     JwtModule.register({
       secret: process.env.JWT_SECRET,

@@ -1,14 +1,31 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { InjectModel } from '@nestjs/mongoose';
 import axios from 'axios';
+import { Model } from 'mongoose';
 import { UsersRepository } from 'src/users/users.repository';
+import { Token } from '../refreshtoken.schema';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersRepository: UsersRepository,
-    private jwtService: JwtService,
+    private readonly jwtService: JwtService,
+    @InjectModel(Token.name) private readonly tokenModel: Model<Token>,
   ) {}
+
+  async generateRefreshToken(email: string): Promise<string> {
+    const refreshToken = this.jwtService.sign({}, { expiresIn: '1d' });
+
+    const tokenDoc = new this.tokenModel({
+      email,
+      refreshToken,
+    });
+
+    await tokenDoc.save();
+    return refreshToken;
+  }
+
   async kakaoLogin(accesstoken: string) {
     const kakaoUserInfoUrl = 'https://kapi.kakao.com/v2/user/me';
     const headerUserInfo = {
@@ -21,6 +38,7 @@ export class AuthService {
       url: kakaoUserInfoUrl,
       headers: headerUserInfo,
     });
+    //console.log('-=-=-=-=-=-=-=-=-=-=-=-=-', responseUserInfo);
 
     if (responseUserInfo.status === 200) {
       const email = responseUserInfo.data.kakao_account.email;
@@ -42,12 +60,17 @@ export class AuthService {
         nickname,
       };
       let token = '';
+      //let refreshToken = '';
       const payload = { email: email, socialId: socialId };
+      console.log('============', payload);
 
       const user = await this.usersRepository.existsByEmail(email);
       if (!user) {
         await this.usersRepository.create(kakaoUser);
-        token = this.jwtService.sign(payload);
+        token = this.jwtService.sign(payload, { expiresIn: '1h' });
+        //console.log('++++++++++++++++++++++++++++++', token);
+        //console.log('-=-=-=-=-=-=-=-====================', email);
+        //refreshToken = await this.generateRefreshToken(email);
       } else {
         const info = await this.usersRepository.findUserByEmail(email);
         const jwtPayload = {
@@ -55,7 +78,8 @@ export class AuthService {
           socialId: info.socialId,
           userId: info.id,
         };
-        token = this.jwtService.sign(jwtPayload);
+        token = this.jwtService.sign(jwtPayload, { expiresIn: '1h' });
+        //refreshToken = await this.generateRefreshToken(email);
       }
       return token;
     }
@@ -111,7 +135,7 @@ export class AuthService {
         const user = await this.usersRepository.existsByEmail(email);
         if (!user) {
           await this.usersRepository.create(naverUser);
-          token = this.jwtService.sign(payload);
+          token = this.jwtService.sign(payload, { expiresIn: '1h' });
         } else {
           const info = await this.usersRepository.findUserByEmail(email);
           const jwtPayload = {
@@ -119,7 +143,7 @@ export class AuthService {
             socialId: info.socialId,
             userId: info.id,
           };
-          token = this.jwtService.sign(jwtPayload);
+          token = this.jwtService.sign(jwtPayload, { expiresIn: '1h' });
         }
         return token;
       }
